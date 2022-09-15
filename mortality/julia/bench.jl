@@ -18,5 +18,7 @@ function runner()
     unit_claims_discounted
 end
 
+MortalityTables.table(3299)
+
 b = @benchmark runner()
 print("mean time: ", mean(b), "\nmedian time: ", median(b), "\nmemory: ", b.memory)
