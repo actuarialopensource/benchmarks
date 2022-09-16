@@ -10,7 +10,6 @@ def runner():
     ultimate = np.array(
         [MortXML(id).Tables[1].Values.unstack().values for id in range(3299, 3309)]
     )
-
     mortality_table_index = np.arange(10)
     duration = np.arange(25)
     issue_age = np.arange(18, 51)
@@ -19,7 +18,6 @@ def runner():
     ]
     time_axis = np.arange(30)[:, None]
     duration_projected = time_axis + duration
-
     q = np.where(
         duration_projected < select.shape[-1],
         select[
