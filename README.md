@@ -44,6 +44,6 @@ Two performance bottlenecks on PyMort are the following:
 
 The Black formatter for Python keeps lines short by breaking things up into new lines, this is good practice so we do it in the benchmark.
 
-### A word from the authors
+### More thoughts
 
-> The MortXML object is intended to be a Pythonic object-oriented wrapper for the standard XML mortality tables. It is apparently not optimized for this benchmark. I was surprised to see Julia's ability to create a NumPy-like array using a list comprehension. There are some good design decisions in the Julia language and in the MortalityTables.jl package. - _Author of Pymort and these benchmarks, Matthew Caseres_
+The MortXML object is intended to be a Pythonic object-oriented wrapper for the standard XML mortality tables. It is apparently not optimized for this benchmark. I was surprised to see Julia's ability to create a NumPy-like array using a list comprehension. There are some good design decisions in the Julia language and in the MortalityTables.jl package.
