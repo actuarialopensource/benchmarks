@@ -22,7 +22,7 @@ We calculate the discounted (`r=.02`) expected benefits for a $1 face amount for
 
 | library                                                                  | run 1   | run 2   | lines of code | source code                                                                          |
 | ------------------------------------------------------------------------ | ------- | ------- | ------------- | ------------------------------------------------------------------------------------ |
-| [MortalityTables.jl](https://github.com/JuliaActuary/MortalityTables.jl) | 4ms     | 5ms     | 13            | [link](https://github.com/actuarialopensource/benchmarks/tree/main/mortality/julia)  |
+| [MortalityTables.jl](https://github.com/JuliaActuary/MortalityTables.jl) | 333.052 μs     | 328.443 μs     | 13            | [link](https://github.com/actuarialopensource/benchmarks/tree/main/mortality/julia)  |
 | [pymort](https://github.com/actuarialopensource/pymort)                  | 1,889ms | 1,922ms | 30            | [link](https://github.com/actuarialopensource/benchmarks/tree/main/mortality/python) |
 
 ### Notes on differences in runtime
