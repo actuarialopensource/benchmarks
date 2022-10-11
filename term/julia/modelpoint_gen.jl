@@ -23,7 +23,7 @@ rga_2014 = (
 # Try to use all the levels from all the factors.
 issue_age = 20:60
 mortality_tables = 3299:3308
-face_amounts = [25000, 50000, 100_000, 250_000, 1_000_000]
+face_amounts = [25000.0, 50000.0, 100_000.0, 250_000.0, 1_000_000.0]
 premium_modes = ["Annual", "Semiannual", "Quarterly", "Monthly"]
 premium_jumps = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 10.0, 12.0, 16.0, 20.0, 22.0]
 
@@ -61,6 +61,7 @@ modelpoints = DataFrame([
         riskclass=mort_to_riskclass[mt],
         riskclass_encoded=mort_to_riskclass_encoded[mt],
         face_amounts=fa,
+        face_amounts_encoded=fa_enc,
         premium_modes=pm,
         premium_mode_encoded=pm_enc,
         months_between_premiums=months_between_premiums,
