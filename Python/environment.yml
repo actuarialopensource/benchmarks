@@ -1,0 +1,6 @@
+name: benchmark
+
+dependencies:
+  - python=3.11
+  - pip:
+    - pymort==1.0.0
