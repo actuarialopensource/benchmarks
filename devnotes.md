@@ -1,0 +1,1 @@
+act -W .github/workflows/bench.yml

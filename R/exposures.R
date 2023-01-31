@@ -330,4 +330,5 @@ toy_census <- data.frame(
   term_date = as.Date(c(NA, "2020-09-14", "2022-02-25"))
 )
 
-expose_py(toy_census, start_date = "2010-01-01", end_date = "2020-12-31")
+
+print(expose_py(toy_census, start_date = "2010-01-01", end_date = "2020-12-31"))
