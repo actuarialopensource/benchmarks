@@ -28,7 +28,8 @@ jobs:
         run: |
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
           renv::restore()
-      - run: Rscript -e 'source("exposures.R")'
+      - name: Benchmark
+        run: Rscript -e 'source("exposures.R")'
   bench-Julia:
     runs-on: ubuntu-latest
     defaults:
@@ -39,9 +40,9 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.7'
-      - run: | 
-          julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
-          julia --project=@. mortality.jl
+      - run: julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
+      - name: Benchmark
+        run: julia --project=@. mortality.jl
   bench-Python:
     runs-on: ubuntu-latest
     defaults:
@@ -61,4 +62,5 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - run: python mortality.py
+      - name: Benchmark
+        run: python mortality.py
