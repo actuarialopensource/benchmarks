@@ -39,8 +39,9 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.7'
-      - run: julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
-      - run: julia mortality.jl
+      - run: | 
+          julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
+          julia --project=@. mortality.jl
   bench-Python:
     runs-on: ubuntu-latest
     defaults:
