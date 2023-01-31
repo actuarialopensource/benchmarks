@@ -2,8 +2,6 @@ name: bench
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
 jobs:
   bench-R:
     runs-on: ubuntu-latest
