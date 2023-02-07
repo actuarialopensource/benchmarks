@@ -29,7 +29,13 @@ jobs:
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
           renv::restore()
       - name: Benchmark
-        run: Rscript -e 'source("exposures.R")'
+        run: Rscript -e 'source("main.R")'
+      - run: ls
+      - name: upload R benchmark
+        uses: actions/upload-artifact@v3
+        with:
+          name: R_benchmark
+          path: benchmark_results.yaml
   bench-Julia:
     runs-on: ubuntu-latest
     defaults:
@@ -42,7 +48,13 @@ jobs:
           version: '1.7'
       - run: julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
       - name: Benchmark
-        run: julia --project=@. mortality.jl
+        run: julia --project=@. main.jl
+      - run: ls
+      - name: upload Julia benchmark
+        uses: actions/upload-artifact@v3
+        with:
+          name: Julia_benchmark
+          path: benchmark_results.yaml
   bench-Python:
     runs-on: ubuntu-latest
     defaults:
@@ -63,4 +75,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Benchmark
-        run: python mortality.py
+        run: python main.py
+      - run: ls
+      - name: upload Python benchmark
+        uses: actions/upload-artifact@v3
+        with:
+          name: Python_benchmark
+          path: benchmark_results.yaml
+  

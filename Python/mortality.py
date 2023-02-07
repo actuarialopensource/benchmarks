@@ -41,7 +41,7 @@ def run_mortality_benchmarks():
     return {
         "mortality1": {
             "result": float(mort1_result),
-            "mean": f"{b1 / trials} seconds",
+            "mean": f"{(b1 / trials)*1000} milliseconds",
         }
     }
 
