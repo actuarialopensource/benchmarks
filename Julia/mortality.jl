@@ -1,11 +1,11 @@
 using MortalityTables
 using BenchmarkTools
 
-@inline function npv(qs, r, term=length(qs))
+@inline function npv(qs, r, term = length(qs))
     inforce, result = 1.0, 0.0
     v = 1 / (1 + r)
     v_t = v
-    @inbounds @simd for t in 1:min(term, length(qs))
+    @inbounds @simd for t = 1:min(term, length(qs))
         q = qs[t]
         result += inforce * q * v_t
         inforce = inforce * (1 - q)
@@ -14,7 +14,7 @@ using BenchmarkTools
     return result
 end
 
-function runner(tbls=[MortalityTables.table(i) for i in 3299:3308])
+function mortality1(tbls = [MortalityTables.table(i) for i = 3299:3308])
     issue_ages = 18:50
     durations = 1:25
     term = 29
@@ -26,8 +26,14 @@ function runner(tbls=[MortalityTables.table(i) for i in 3299:3308])
     return total
 end
 
-@assert runner() ≈ 1904.486552663679
-
-b = @benchmark runner()
-
-print("mean time: ", mean(b), "\nmedian time: ", median(b), "\nmemory: ", b.memory)
+function run_mortality_benchmarks()
+    mort1_result = mortality1()
+    b1 = @benchmark mortality1()
+    # (result, mean time, median time) named tuple
+    return Dict(
+        "mortality1" => Dict(
+            "result" => mort1_result,
+            "mean" => string(mean(b1)),
+        ),
+    )
+end

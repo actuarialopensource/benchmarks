@@ -321,14 +321,3 @@ as_exposed_df <- function(x, end_date, start_date = as.Date("1900-01-01"),
             end_date = end_date)
 
 }
-
-status_list <- c("Active", "Death", "Surrender")
-toy_census <- data.frame(
-  pol_num = 1:3,
-  status = c("Active", "Death", "Surrender") |> factor(levels = status_list),
-  issue_date = as.Date(c("2010-01-01", "2011-05-27", "2009-11-10")),
-  term_date = as.Date(c(NA, "2020-09-14", "2022-02-25"))
-)
-
-
-print(expose_py(toy_census, start_date = "2010-01-01", end_date = "2020-12-31"))
