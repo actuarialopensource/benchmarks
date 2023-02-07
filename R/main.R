@@ -22,7 +22,7 @@ results <- microbenchmark(
   )
 )
 
-write_yaml <- function(results){
+create_benchmark_results_yaml <- function(results){
   summarised_results <- results %>%
     group_by(expr) %>%
     summarise(avg_time_ms = mean(time)/1000000)
