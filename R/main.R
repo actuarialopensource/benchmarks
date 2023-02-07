@@ -41,4 +41,4 @@ create_benchmark_results_yaml <- function(results){
   )
 }
 
-write_yaml(results)
+create_benchmark_results_yaml(results)
