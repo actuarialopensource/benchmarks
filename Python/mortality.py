@@ -2,8 +2,7 @@ from pymort.XML import MortXML
 import numpy as np
 import timeit
 
-
-def runner():
+def mortality1():
     select = np.array(
         [MortXML(id).Tables[0].Values.unstack().values for id in range(3299, 3309)]
     )
@@ -24,7 +23,7 @@ def runner():
             mortality_table_index,
             issue_age - 18,
             np.minimum(duration_projected, select.shape[-1] - 1),
-        ],  # np.minimum avoids some out of bounds error (which shouldn't exist in the first place? JAX works without workaround)
+        ],  # np.minimum avoids some out of bounds error (JAX clips out of bounds indexes so no problem if using JAX)
         ultimate[mortality_table_index, issue_age - 18 + duration_projected],
     )
     npx = np.concatenate(
@@ -35,8 +34,17 @@ def runner():
     unit_claims_discounted = npx * q * v_eoy
     return np.sum(unit_claims_discounted)
 
+def run_mortality_benchmarks():
+    mort1_result = mortality1()
+    trials = 20
+    b1 = timeit.timeit(stmt="mortality1()", setup="from mortality import mortality1", number=trials)
+    return {
+        "mortality1": {
+            "result": float(mort1_result),
+            "mean": f"{b1 / trials} seconds",
+        }
+    }
 
-assert runner() == 1904.4865526636793
-res = timeit.timeit(stmt="runner()", setup="from __main__ import runner", number=20)
-print("total time: ", res)
-print("average time: ", res / 20)
+if __name__ == "__main__":
+    results = run_mortality_benchmarks()
+    print(results)
