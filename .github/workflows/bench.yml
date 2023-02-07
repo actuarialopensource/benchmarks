@@ -107,13 +107,13 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt
-      - run: python create_readme.py
+      - run: python generate_readme.py
       # commit and push the README.md
       - name: Commit and push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add README.md
-          git commit -m "Update README.md"
+          git add .
+          git commit -m "Bench and update README.md"
           git push
   
