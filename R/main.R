@@ -3,6 +3,7 @@ library(readr)
 library(microbenchmark)
 library(magrittr)
 library(dplyr)
+library(lubridate)
 source("exposures.R")
 # use readr to read csv from ../data/census_dat.csv
 
