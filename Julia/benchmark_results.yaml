@@ -1,12 +1,12 @@
 Julia:
   mortality:
     mortality1:
-      mean: "TrialEstimate(603.104 μs)"
+      mean: "TrialEstimate(448.124 μs)"
       result: 1904.4865526636793
   exposures:
     ExperienceAnalysis fork:
       num_rows: 141281
-      mean: "TrialEstimate(48.232 ms)"
+      mean: "TrialEstimate(40.988 ms)"
     ExperienceAnalysis:
       num_rows: 143166
-      mean: "TrialEstimate(83.530 ms)"
+      mean: "TrialEstimate(69.920 ms)"
