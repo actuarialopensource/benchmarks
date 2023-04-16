@@ -1,15 +1,15 @@
 Julia:
   basic_term_benchmark:
     cf1:
-      mean: "TrialEstimate(250.511 ms)"
+      mean: "TrialEstimate(851.194 ms)"
   mortality:
     mortality1:
-      mean: "TrialEstimate(416.814 μs)"
+      mean: "TrialEstimate(410.485 μs)"
       result: 1904.4865526636793
   exposures:
     ExperienceAnalysis fork:
       num_rows: 141281
-      mean: "TrialEstimate(42.526 ms)"
+      mean: "TrialEstimate(40.005 ms)"
     ExperienceAnalysis:
       num_rows: 143166
-      mean: "TrialEstimate(69.845 ms)"
+      mean: "TrialEstimate(70.649 ms)"
