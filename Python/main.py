@@ -1,10 +1,12 @@
 from mortality import run_mortality_benchmarks
+from basicterm import run_basic_term_benchmarks
 import yaml
 
 def get_results():
     return {
         "Python": {
             "mortality": run_mortality_benchmarks(),
+            "basic_term_benchmark": run_basic_term_benchmarks()
         }
     }
 
