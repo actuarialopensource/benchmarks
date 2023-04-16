@@ -2,7 +2,7 @@
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "a86b3df8b67f16cd0d0a1601bcdcd753f269784a"
+project_hash = "38166f97397fec4133c7ff7808ae64307fc353e1"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -19,6 +19,12 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.BenchmarkTools]]
+deps = ["JSON", "Logging", "Printf", "Profile", "Statistics", "UUIDs"]
+git-tree-sha1 = "d9a9701b899b30332bbcb3e1679c41cce81fb0e8"
+uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+version = "1.3.2"
 
 [[deps.CSV]]
 deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "SentinelArrays", "SnoopPrecompile", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
@@ -82,6 +88,12 @@ version = "1.0.0"
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
+[[deps.DayCounts]]
+deps = ["Dates"]
+git-tree-sha1 = "cb81cac5f32b71d4e127f4d1bea6fd6049e729b2"
+uuid = "44e31299-2c53-5a9b-9141-82aa45d7972f"
+version = "0.1.0"
+
 [[deps.Distances]]
 deps = ["LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI"]
 git-tree-sha1 = "49eba9ad9f7ead780bfb7ee319f962c811c6d3b2"
@@ -92,6 +104,12 @@ version = "0.10.8"
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
+
+[[deps.ExperienceAnalysis]]
+deps = ["Dates"]
+git-tree-sha1 = "f8d4cfe4d61bee2dd9615e3c3ed732cd61ea3ddf"
+uuid = "51cd30ab-a913-41ff-9b6f-9b78880a2ac2"
+version = "1.0.0"
 
 [[deps.EzXML]]
 deps = ["Printf", "XML2_jll"]
@@ -148,6 +166,12 @@ deps = ["Preferences"]
 git-tree-sha1 = "abc9885a7ca2052a736a600f7fa66209f96506e1"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
 version = "1.4.1"
+
+[[deps.JSON]]
+deps = ["Dates", "Mmap", "Parsers", "Unicode"]
+git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
+uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+version = "0.21.4"
 
 [[deps.LaTeXStrings]]
 git-tree-sha1 = "f2355693d6778a178ade15952b7ac47a4ff97996"
@@ -282,6 +306,10 @@ version = "2.2.3"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
+[[deps.Profile]]
+deps = ["Printf"]
+uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
+
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
 git-tree-sha1 = "6ec7ac8412e83d57e313393220879ede1740f9ee"
@@ -355,6 +383,12 @@ git-tree-sha1 = "ceeef74797d961aee825aabf71446d6aba898acb"
 uuid = "88034a9c-02f8-509d-84a9-84ec65e18404"
 version = "0.11.2"
 
+[[deps.StringEncodings]]
+deps = ["Libiconv_jll"]
+git-tree-sha1 = "33c0da881af3248dafefb939a21694b97cfece76"
+uuid = "69024149-9ee7-55f6-a4c4-859efe599b68"
+version = "0.3.6"
+
 [[deps.StringManipulation]]
 git-tree-sha1 = "46da2434b41f41ac3594ee9816ce5541c6096123"
 uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
@@ -426,6 +460,12 @@ deps = ["EzXML", "IterTools", "OrderedCollections"]
 git-tree-sha1 = "d9a3faf078210e477b291c79117676fca54da9dd"
 uuid = "228000da-037f-5747-90a9-8195ccbf91a5"
 version = "0.4.1"
+
+[[deps.YAML]]
+deps = ["Base64", "Dates", "Printf", "StringEncodings"]
+git-tree-sha1 = "dbc7f1c0012a69486af79c8bcdb31be820670ba2"
+uuid = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
+version = "0.4.8"
 
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
