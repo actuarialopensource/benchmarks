@@ -1,6 +1,7 @@
 # we need the codes from mortality.jl
 include("mortality.jl")
 include("exposures.jl")
+include("basic_term.jl")
 import YAML
 
 
@@ -10,6 +11,7 @@ function run_benchmarks()
         "Julia" => Dict(
             "mortality" => run_mortality_benchmarks(),
             "exposures" => run_exposure_benchmarks(),
+            "basic_term_benchmark" => run_basic_term_benchmark(),
         ),
     )
 end

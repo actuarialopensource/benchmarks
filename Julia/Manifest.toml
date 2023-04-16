@@ -28,7 +28,7 @@ version = "0.10.9"
 
 [[deps.CacheFlow]]
 deps = ["CSV", "DataFrames", "DataStructures", "Memoize", "MortalityTables"]
-git-tree-sha1 = "679aa49ec30443437888d8b92ff9274fce7c9910"
+git-tree-sha1 = "429b4e6ac0eed7497d418374c0dcfd8f9ce0cc1a"
 repo-rev = "main"
 repo-url = "https://github.com/actuarialopensource/CacheFlow.jl"
 uuid = "73783465-395e-4165-b528-1c694332812b"
