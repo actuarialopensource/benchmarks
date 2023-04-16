@@ -1,21 +1,15 @@
 Julia:
   basic_term_benchmark:
     cf1:
-      mean: "TrialEstimate(260.843 ms)"
-      result: 2×5 DataFrame
- Row │ Claims     Commissions  Expenses    Net Cashflow    Premiums
-     │ Float64    Float64      Float64     Float64         Float64
-─────┼───────────────────────────────────────────────────────────────
-   1 │ 2.40181e5     8.2806e5      3.05e6      -3.29018e6  8.2806e5
-   2 │ 2.53442e5     0.0       10686.3     -89597.3        1.74531e5
+      mean: "TrialEstimate(120.996 ms)"
   mortality:
     mortality1:
-      mean: "TrialEstimate(410.902 μs)"
+      mean: "TrialEstimate(244.544 μs)"
       result: 1904.4865526636793
   exposures:
     ExperienceAnalysis fork:
       num_rows: 141281
-      mean: "TrialEstimate(41.592 ms)"
+      mean: "TrialEstimate(21.749 ms)"
     ExperienceAnalysis:
       num_rows: 143166
-      mean: "TrialEstimate(71.793 ms)"
+      mean: "TrialEstimate(42.174 ms)"
