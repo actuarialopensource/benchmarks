@@ -11,7 +11,7 @@ def run_basic_term_benchmarks():
     trials = 20
     b1 = timeit.timeit(stmt="basic_term_m_lifelib()", setup="from basicterm import basic_term_m_lifelib", number=trials)
     return {
-        "basic_term_m_lifelib": {
+        "Python lifelib basic_term_m": {
             "mean": f"{(b1 / trials)*1000} milliseconds",
         }
     }

@@ -10,7 +10,7 @@ function run_basic_term_benchmark()
     cf1_benchmark = @benchmark cf1()
     # (result, mean time, median time) named tuple
     return Dict(
-        "cf1" => Dict(
+        "Julia CacheFlow basic_term" => Dict(
             "mean" => string(mean(cf1_benchmark)),
         ),
     )

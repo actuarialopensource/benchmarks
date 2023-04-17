@@ -29,14 +29,12 @@ create_benchmark_results_yaml <- function(results){
     summarise(avg_time_ms = mean(time)/1000000)
   write_yaml(
     list(
-      R = list(
         exposures = list(
-          actxps = list(
+          "R actxps" = list(
             num_rows = nrow(exposures),
             mean = paste(summarised_results$avg_time_ms, "ms")
           )
         )
-      )
     ),
     "benchmark_results.yaml"
   )

@@ -63,11 +63,11 @@ function run_exposure_benchmarks()
     b_fork = @benchmark exposures_fork($df_yearly_fork, $study_start, $study_end)
     
     return Dict(
-        "ExperienceAnalysis" => Dict(
+        "Julia JuliaActuary ExperienceAnalysis" => Dict(
             "num_rows" => size(result_exp, 1),
             "mean" => string(mean(b_exp)),
         ),
-        "ExperienceAnalysis fork" => Dict(
+        "Julia actuarialopensource fork ExperienceAnalysis" => Dict(
             "num_rows" => size(result_fork, 1),
             "mean" => string(mean(b_fork)),
         ),
