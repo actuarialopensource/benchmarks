@@ -39,7 +39,7 @@ def run_mortality_benchmarks():
     trials = 20
     b1 = timeit.timeit(stmt="mortality1()", setup="from mortality import mortality1", number=trials)
     return {
-        "mortality1": {
+        "Python PyMort": {
             "result": float(mort1_result),
             "mean": f"{(b1 / trials)*1000} milliseconds",
         }
