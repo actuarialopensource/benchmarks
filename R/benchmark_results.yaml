@@ -1,5 +1,4 @@
-R:
-  exposures:
-    actxps:
-      num_rows: 141281
-      mean: 760.268577 ms
+exposures:
+  R actxps:
+    num_rows: 141281
+    mean: 771.477105 ms
