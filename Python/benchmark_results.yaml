@@ -1,7 +1,9 @@
 basic_term_benchmark:
   Python lifelib basic_term_m:
-    mean: 1860.9376986000002 milliseconds
+    mean: 2601.6149545000003 milliseconds
+  Python scratch basic_term_m:
+    mean: 1024.7459456000001 milliseconds
 mortality:
   Python PyMort:
-    mean: 1708.1310842999997 milliseconds
+    mean: 2435.5273893000003 milliseconds
     result: 1904.4865526636793
