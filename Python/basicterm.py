@@ -9,10 +9,14 @@ def basic_term_m_lifelib():
 
 def run_basic_term_benchmarks():
     trials = 20
-    b1 = timeit.timeit(stmt="basic_term_m_lifelib()", setup="from basicterm import basic_term_m_lifelib", number=trials)
+    modelx_time = timeit.timeit(stmt="basic_term_m_lifelib()", setup="from basicterm import basic_term_m_lifelib", number=trials)
+    scratch_time = timeit.timeit(stmt="basic_term_m_scratch()", setup="from basicterm_scratch import basic_term_m_scratch", number=trials)
     return {
         "Python lifelib basic_term_m": {
-            "mean": f"{(b1 / trials)*1000} milliseconds",
+            "mean": f"{(modelx_time / trials)*1000} milliseconds",
+        },
+        "Python scratch basic_term_m": {
+            "mean": f"{(scratch_time / trials)*1000} milliseconds",
         }
     }
 
