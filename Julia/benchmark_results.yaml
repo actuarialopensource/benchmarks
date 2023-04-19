@@ -1,14 +1,14 @@
 basic_term_benchmark:
   Julia CacheFlow basic_term:
-    mean: "TrialEstimate(1.239 s)"
+    mean: "TrialEstimate(1.166 s)"
 mortality:
   Julia MortalityTables.jl:
-    mean: "TrialEstimate(589.501 μs)"
+    mean: "TrialEstimate(555.717 μs)"
     result: 1904.4865526636793
 exposures:
   Julia JuliaActuary ExperienceAnalysis:
     num_rows: 143166
-    mean: "TrialEstimate(92.349 ms)"
+    mean: "TrialEstimate(90.545 ms)"
   Julia actuarialopensource fork ExperienceAnalysis:
     num_rows: 141281
-    mean: "TrialEstimate(55.475 ms)"
+    mean: "TrialEstimate(53.045 ms)"
