@@ -131,6 +131,7 @@ def net_cf(t):
 @cash
 def pv_net_cf():
     return pv_premiums() - pv_claims() - pv_expenses() - pv_commissions()
+
 @cash
 def result_cf():
     t_len = range(max_proj_len)
@@ -144,9 +145,9 @@ def result_cf():
     return pd.DataFrame(data, index=t_len)
 
 
-def basic_term_m_scratch():
+def basicterm_scratch():
     cash.caches.clear()
-    result_cf()
+    return float(np.sum(pv_net_cf()))
 
 
 def run_tests():
