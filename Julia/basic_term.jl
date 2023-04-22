@@ -3,6 +3,7 @@ import CacheFlow as cf
 function cf1()
     empty!(cf.cache_policies_inforce)
     empty!(cf.cache_premiums_pp)
+    empty!(cf.cache_monthly_basic_mortality)
     sum(cf.pv_net_cf())
 end
 

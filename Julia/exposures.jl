@@ -51,7 +51,7 @@ end
 
 
 function run_exposure_benchmarks()
-    df = CSV.read("../data/census_dat.csv", DataFrame)
+    df = CSV.read(joinpath(dirname(@__DIR__), "data", "census_dat.csv"), DataFrame)
     df.term_date = [d == "NA" ? nothing : Date(d, "yyyy-mm-dd") for d in df.term_date]
     study_end = Date(2020, 2, 29)
     study_start = Date(2006, 6, 15)
