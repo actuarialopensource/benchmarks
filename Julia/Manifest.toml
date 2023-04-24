@@ -99,9 +99,9 @@ version = "1.6.0"
 
 [[deps.ExperienceAnalysis]]
 deps = ["Dates"]
-git-tree-sha1 = "f8d4cfe4d61bee2dd9615e3c3ed732cd61ea3ddf"
+git-tree-sha1 = "250610322b34c6b18e1632d628797f92972b1178"
 uuid = "51cd30ab-a913-41ff-9b6f-9b78880a2ac2"
-version = "1.0.0"
+version = "1.1.0"
 
 [[deps.EzXML]]
 deps = ["Printf", "XML2_jll"]
