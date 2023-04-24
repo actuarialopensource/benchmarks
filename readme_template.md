@@ -2,12 +2,13 @@
 
 Benchmarks in this repository:
 
-* `basic_term_benchmark`: Cashflow generation for a basic term life insurance policy
-    * Julia [CacheFlow](https://github.com/actuarialopensource/CacheFlow.jl)
+* `basic_term_benchmark`: Replicate the cashflows of the [LifeLib BasicTerm model](https://github.com/lifelib-dev/lifelib/tree/main/lifelib/libraries/basiclife/BasicTerm_M)
     * Python [LifeLib BasicTerm_M](https://github.com/lifelib-dev/lifelib/tree/main/lifelib/libraries/basiclife/BasicTerm_M)
+    * Julia [using memoization](https://github.com/actuarialopensource/benchmarks/blob/main/Julia/src/CacheFlow.jl)
+    * Python [using custom memoization decorator](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_scratch.py)
+    * Python [using JAX](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_jax.py)
 * `exposures`: Create date partitions for experience studies
     * Julia [ExperienceAnalysis](https://github.com/JuliaActuary/ExperienceAnalysis.jl)
-    * Julia [ExperienceAnalysis actuarialopensource fork](https://github.com/JuliaActuary/ExperienceAnalysis.jl)
     * R [actxps](https://github.com/mattheaphy/actxps)
 * `mortality`: Read SOA mortality tables and use them in a simple calculation
     * Julia [MortalityTables](https://github.com/JuliaActuary/MortalityTables.jl)
