@@ -7,7 +7,7 @@ using DataFrames, CSV, Memoize
 data_file(file) = joinpath(dirname(dirname(@__DIR__)), "Python", "BasicTerm_M", file)
 read_csv(file) = CSV.read(data_file(file), DataFrame)
 
-const final_timestep = Ref(240)
+const final_timestep = Ref{Int}(240)
 duration(t::Int) = t ÷ 12
 
 include("mortality.jl")
@@ -39,7 +39,7 @@ pv_pols_if() = foldl((res, t) -> (res .+= policies_inforce(t) .* disc_factor(t))
 pv_premiums() = foldl((res, t) -> (res .+= premiums(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, length(issue_age)))
 
 net_premium_pp() = pv_claims() ./ pv_pols_if()
-const cache_premiums_pp = Dict{Tuple{},Any}()
+const cache_premiums_pp = Dict{Tuple{},Vector{Float64}}()
 @memoize Returns(cache_premiums_pp)() premium_pp() = round.((1 .+ loading_prem) .* net_premium_pp(); digits = 2)
 premiums(t::Int) = premium_pp() .* policies_inforce(t)
 pv_net_cf() = pv_premiums() .- pv_claims() .- pv_expenses() .- pv_commissions()
