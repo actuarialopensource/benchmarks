@@ -1,13 +1,13 @@
-using CacheFlow
-using CacheFlow: CacheFlow as cf
+using Benchmarks
+using Benchmarks: Benchmarks as B
 using DataFrames: DataFrame
 using Test
 
-@testset "CacheFlow.jl" begin
-    @test cf.policies_inforce(200)[1:3] == [0.000000, 0.5724017900070532, 0.000000]
-    @test cf.claims(130)[1:3] ≈ [0.0, 28.82531005791726, 0.0]
-    @test cf.expenses(100)[1:3] == [3.682616858501336, 3.703818110341339, 3.671941182132007]
-    @test cf.expenses(0)[1:3] == [305.0,305.0,305.0]
+@testset "Benchmarks.jl" begin
+    @test B.policies_inforce(200)[1:3] == [0.000000, 0.5724017900070532, 0.000000]
+    @test B.claims(130)[1:3] ≈ [0.0, 28.82531005791726, 0.0]
+    @test B.expenses(100)[1:3] == [3.682616858501336, 3.703818110341339, 3.671941182132007]
+    @test B.expenses(0)[1:3] == [305.0,305.0,305.0]
 
     @test pv_claims()[1:3] ≈ [5501.19489836432, 5956.471604652321, 9190.425784230943]
     @test pv_premiums()[1:3] ≈ [8252.08585552, 8934.76752446, 13785.48441688]

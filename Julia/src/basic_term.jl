@@ -1,17 +1,3 @@
-module CacheFlow
-
-export pv_claims, pv_premiums, pv_commissions, pv_expenses, pv_net_cf, result_pv, result_cf
-
-using DataFrames, CSV, Memoize
-
-data_file(file) = joinpath(dirname(dirname(@__DIR__)), "Python", "BasicTerm_M", file)
-read_csv(file) = CSV.read(data_file(file), DataFrame)
-
-const final_timestep = Ref{Int}(240)
-duration(t::Int) = t ÷ 12
-
-include("mortality.jl")
-
 const sum_assured = model_points[:, :sum_assured]
 const zero_spot = read_csv("disc_rate_ann.csv")[:, :zero_spot]
 const sex = model_points[:, :sex]
@@ -64,6 +50,4 @@ function result_pv()
     return DataFrame(Dict(
             cols .=> pvs,
         ))
-end
-
 end
