@@ -1,10 +1,10 @@
-import CacheFlow as cf
+import Benchmarks as B
 
 function cf1()
-    empty!(cf.cache_policies_inforce)
-    empty!(cf.cache_premiums_pp)
-    empty!(cf.cache_monthly_basic_mortality)
-    sum(cf.pv_net_cf())
+    empty!(B.cache_policies_inforce)
+    empty!(B.cache_premiums_pp)
+    empty!(B.cache_monthly_basic_mortality)
+    sum(B.pv_net_cf())
 end
 
 function run_basic_term_benchmark()
@@ -12,7 +12,7 @@ function run_basic_term_benchmark()
     result = cf1()
     # (result, mean time, median time) named tuple
     return Dict(
-        "Julia CacheFlow basic_term" => Dict(
+        "Julia Benchmarks basic_term" => Dict(
             "mean" => string(mean(cf1_benchmark)),
             "result" => string(result),
         ),
