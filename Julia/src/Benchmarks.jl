@@ -27,5 +27,5 @@ export
   Policy, policies_from_lifelib,
   PolicySet, policy_count,
   Model, EX4,
-  Simulation, SimulationResult, next!
+  Simulation, SimulationResult, next!, simulate!
 end

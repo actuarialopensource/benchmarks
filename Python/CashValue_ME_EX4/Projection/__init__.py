@@ -995,6 +995,7 @@ def lapse_rate(t):
     """
     # return np.maximum(0.1 - 0.02 * duration(t), 0.02)
     return pd.Series(0, index=model_point().index).values
+    # return pd.Series(0.01, index=model_point().index).values
 
 
 def load_prem_rate():

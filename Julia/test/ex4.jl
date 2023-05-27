@@ -29,4 +29,10 @@ using Test
   @test length(sim.active_policies) == 100_000
   n = sum(policy_count, sim.active_policies)
   @test n > 5_000_000
+
+  policies = policies_from_lifelib("ex4/model_point_table_9.csv")
+  model = EX4(annual_lapse_rate = 0.00)
+  sim = Simulation(model, policies)
+  simulate!(sim, 12)
+  @test sum(policy_count, sim.active_policies) == 900.0
 end;
