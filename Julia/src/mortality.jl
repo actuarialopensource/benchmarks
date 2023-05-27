@@ -1,5 +1,5 @@
-const issue_age = model_points[:, :age_at_entry]
 const model_points = read_csv("basic_term/model_point_table.csv")
+const issue_age = model_points[:, :age_at_entry]
 
 Base.@kwdef struct BasicMortality
   rates::Matrix{Float64} = Matrix{Float64}(read_csv("basic_term/mort_table.csv")[:, 2:end])

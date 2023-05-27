@@ -1,6 +1,6 @@
 abstract type Model end
 
-mortality = read_csv("mortality.csv")
+mortality = read_csv("ex4/mortality.csv")
 
 Base.@kwdef struct EX4 <: Model
   annual_discount_rate::Float64 = 0.02
