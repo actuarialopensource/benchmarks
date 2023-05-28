@@ -2,3 +2,4 @@
 .Rproj.user
 **__pycache__
 /.vscode
+.CondaPkg
