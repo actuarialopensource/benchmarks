@@ -35,4 +35,17 @@ using Test
   sim = Simulation(model, policies)
   simulate!(sim, 12)
   @test sum(policy_count, sim.active_policies) == 900.0
+
+  policies = policies_from_lifelib("ex4/model_point_table_9.csv")
+  model = EX4(annual_lapse_rate = 0.00)
+  sim = Simulation(model, policies)
+  res = Dict(:net_cashflow => 0.0)
+  simulate!(sim, 121) do events
+    current_net_cashflow = sum(events.account_changes; init = 0.0) do (set, change)
+      policy_count(set) * change.net_changes
+    end
+    println("Current net cashflow (", length(events.account_changes), " policy sets): ", current_net_cashflow)
+    res[:net_cashflow] += current_net_cashflow
+  end
+  @test res[:net_cashflow] ≈ 399477611.70743275
 end;

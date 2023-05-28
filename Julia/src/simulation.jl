@@ -3,6 +3,7 @@ struct AccountChanges
   premium_into_account::Float64
   account_fees::Float64
   insurance_cost::Float64
+  net_changes::Float64
 end
 
 struct SimulationEvents
@@ -77,6 +78,7 @@ function next!(sim::Simulation{EX4})
     (; policy) = set
     # `BEF_INV` (at t-1)
     account_value = policy.account_value / set.count
+    old_account_value = account_value
     # TODO: Integrate investment income for the past month.
     # `BEF_PREM`
     premium_into_account = policy.premium * (1 - policy.product.load_premium_rate)
@@ -84,11 +86,11 @@ function next!(sim::Simulation{EX4})
     # `BEF_FEE`
     account_fees = account_value * model.account_fee_rate
     account_value -= account_fees
-    insurance_cost = model.insurance_risk_cost * amount_at_risk(model, policy)
+    insurance_cost = model.insurance_risk_cost * amount_at_risk(model, policy, account_value)
     account_value -= insurance_cost
     # `BEF_INV`
     policies[i] = @set set.policy.account_value = account_value * set.count
-    push!(events.account_changes, set => AccountChanges(policy.premium, premium_into_account, account_fees, insurance_cost))
+    push!(events.account_changes, set => AccountChanges(policy.premium, premium_into_account, account_fees, insurance_cost, account_value - old_account_value))
   end
 
   # Update simulation state.
