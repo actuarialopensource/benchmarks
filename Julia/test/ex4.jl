@@ -7,10 +7,6 @@ pydir = joinpath(dirname(pkgdir(Benchmarks)), "Python")
 os = pyimport("os")
 os.chdir(pydir)
 
-pyimport("lifelib")
-pyimport("timeit")
-pd = pyimport("pandas")
-np = pyimport("numpy")
 mx = pyimport("modelx")
 pyimport("openpyxl")
 
