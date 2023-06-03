@@ -54,11 +54,11 @@ end
 
 policy_count(set::PolicySet) = set.count
 
-function policies_from_lifelib(file = "ex4/model_point_table_100K.csv")
+function policies_from_lifelib(file::AbstractString = "ex4/model_point_table_100K.csv")
   df = read_csv(file)
   policies = PolicySet[]
   for row in eachrow(df)
-    sex = row.sex == 'M' ? MALE : FEMALE
+    sex = row.sex == "M" ? MALE : FEMALE
     age = Year(row.age_at_entry)
     assured = row.sum_assured
     premium = row.premium_pp
@@ -69,4 +69,20 @@ function policies_from_lifelib(file = "ex4/model_point_table_100K.csv")
     push!(policies, PolicySet(policy, row.policy_count))
   end
   policies
+end
+
+function policies_from_lifelib(py::Py)
+  file = tempname()
+  open(file, "w") do io
+    println(io, "policy_id,spec_id,age_at_entry,sex,policy_term,policy_count,sum_assured,duration_mth,premium_pp,av_pp_init")
+    for (i, row) in enumerate(py.values)
+      print(io, i, ',')
+      data = pyconvert(Tuple, row)
+      # Skip accum_prem_init_pp.
+      data = data[1:(end - 1)]
+      println(io, join(data, ','))
+    end
+    println(io)
+  end
+  policies_from_lifelib(file)
 end

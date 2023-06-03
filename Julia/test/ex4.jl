@@ -18,16 +18,40 @@ ex4 = mx.read_model("CashValue_ME_EX4")
 proj = ex4.Projection
 
 @testset "Python implementation" begin
-  # Quickly check that the Python implementation works the way we will assume later on.
-  table = proj.model_point_table
-  @test length(table.shape) == 2
-  (npoints, nattrs) = table.shape
-  @test (npoints, nattrs) == (9, 10)
-  points = proj.model_point()
-  @test length(points.shape) == 2
-  nsamples = proj.scen_size
-  npoints_sampled, nattrs_expanded = points.shape
-  @test (npoints_sampled, nattrs_expanded) == (npoints * nsamples, 15)
+  @testset "Array shapes" begin
+    # Quickly check that the Python implementation works the way we will assume later on.
+    table = proj.model_point_table
+    @test length(table.shape) == 2
+    (npoints, nattrs) = table.shape
+    @test (npoints, nattrs) == (9, 10)
+
+    @testset "Monte-Carlo sampling" begin
+      # `proj.model_point()` holds all model points duplicated with as many samples as parametrized for the Monte-Carlo estimation.
+      nsamples = proj.scen_size
+      @test Bool(nsamples == 1000)
+      points = proj.model_point()
+      @test length(points.shape) == 2
+      npoints_sampled, nattrs_expanded = points.shape
+      @test (npoints_sampled, nattrs_expanded) == (npoints * nsamples, 15)
+
+      # Setting the scenario size to 1 to have only 1 sample for the Monte-Carlo estimation.
+      # Since samples are flattened, it has the same effect as "disabling" the Monte-Carlo estimation.
+      (; scen_size) = proj
+      proj.scen_size = 1
+      try
+        (npoints_sampled, nattrs_expanded) = proj.model_point().shape
+        @test (npoints_sampled, nattrs_expanded) == (npoints, 15)
+      finally
+        proj.scen_size = scen_size
+      end
+    end
+  end
+end
+
+@testset "Importing policy sets" begin
+  policies = policies_from_lifelib("ex4/model_point_table_9.csv")
+  policies_py = policies_from_lifelib(proj.model_point_table)
+  @test policies_py == policies_py
 end
 
 @testset "Simulation" begin

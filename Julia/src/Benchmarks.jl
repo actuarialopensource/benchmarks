@@ -5,7 +5,10 @@ export pv_claims, pv_premiums, pv_commissions, pv_expenses, pv_net_cf, result_pv
 using DataFrames, CSV, Memoize
 
 data_file(file) = joinpath(@__DIR__, "data", joinpath(split(file, '/')...))
-read_csv(file) = CSV.read(data_file(file), DataFrame)
+function read_csv(file)
+  !isabspath(file) && (file = data_file(file))
+  CSV.read(file, DataFrame)
+end
 
 const final_timestep = Ref{Int}(240)
 duration(t::Int) = t ÷ 12
@@ -17,6 +20,7 @@ using Dates
 using Accessors: @set
 using CSV
 using DataFrames
+using PythonCall
 
 include("policy.jl")
 include("model.jl")
