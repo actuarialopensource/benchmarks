@@ -17,18 +17,23 @@ pyimport("openpyxl")
 ex4 = mx.read_model("CashValue_ME_EX4")
 proj = ex4.Projection
 
+shape(py::Py) = Tuple(pyconvert.(Int, py.shape))
+ntimesteps(proj::Py) = pyconvert(Int, proj.max_proj_len())
+
 @testset "Python implementation" begin
+  @test ntimesteps(proj) == 121
+
   @testset "Array shapes" begin
+    proj.scen_size = 1000
     # Quickly check that the Python implementation works the way we will assume later on.
     table = proj.model_point_table
-    @test length(table.shape) == 2
-    (npoints, nattrs) = table.shape
-    @test (npoints, nattrs) == (9, 10)
+    @test length(shape(table)) == 2
+    @test shape(table) == (9, 10)
 
     @testset "Monte-Carlo sampling" begin
       # `proj.model_point()` holds all model points duplicated with as many samples as parametrized for the Monte-Carlo estimation.
-      nsamples = proj.scen_size
-      @test Bool(nsamples == 1000)
+      nsamples = pyconvert(Int, proj.scen_size)
+      @test nsamples == 1000
       points = proj.model_point()
       @test length(points.shape) == 2
       npoints_sampled, nattrs_expanded = points.shape
@@ -37,14 +42,20 @@ proj = ex4.Projection
       # Setting the scenario size to 1 to have only 1 sample for the Monte-Carlo estimation.
       # Since samples are flattened, it has the same effect as "disabling" the Monte-Carlo estimation.
       (; scen_size) = proj
-      proj.scen_size = 1
-      try
-        (npoints_sampled, nattrs_expanded) = proj.model_point().shape
-        @test (npoints_sampled, nattrs_expanded) == (npoints, 15)
-      finally
-        proj.scen_size = scen_size
-      end
+      (npoints_sampled, nattrs_expanded) = proj.model_point().shape
+      @test (npoints_sampled, nattrs_expanded) == (npoints, 15)
     end
+  end
+
+  @testset "Deterministic generation of random numbers" begin
+    proj.scen_size = 1
+    arr1 = pyconvert(Matrix{Float64}, proj.std_norm_rand())
+    # How many numbers are generated does not depend on the number of timesteps.
+    # It only needs to be greater than the number of projected time points.
+    n = 242
+    @test size(arr1) == (1, n)
+    arr2 = pyconvert(Matrix{Float64}, proj.std_norm_rand())
+    @test arr1 == arr2
   end
 end
 
