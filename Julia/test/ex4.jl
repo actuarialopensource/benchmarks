@@ -17,6 +17,19 @@ pyimport("openpyxl")
 ex4 = mx.read_model("CashValue_ME_EX4")
 proj = ex4.Projection
 
+@testset "Python implementation" begin
+  # Quickly check that the Python implementation works the way we will assume later on.
+  table = proj.model_point_table
+  @test length(table.shape) == 2
+  (npoints, nattrs) = table.shape
+  @test (npoints, nattrs) == (9, 10)
+  points = proj.model_point()
+  @test length(points.shape) == 2
+  nsamples = proj.scen_size
+  npoints_sampled, nattrs_expanded = points.shape
+  @test (npoints_sampled, nattrs_expanded) == (npoints * nsamples, 15)
+end
+
 @testset "Simulation" begin
   policies = [
     PolicySet(Policy(issued_at = Month(-2)), 40),
