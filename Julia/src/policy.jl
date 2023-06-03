@@ -71,11 +71,11 @@ function policies_from_lifelib(file::AbstractString = "ex4/model_point_table_100
   policies
 end
 
-function policies_from_lifelib(py::Py)
+function policies_from_lifelib(proj::Py)
   file = tempname()
   open(file, "w") do io
     println(io, "policy_id,spec_id,age_at_entry,sex,policy_term,policy_count,sum_assured,duration_mth,premium_pp,av_pp_init")
-    for (i, row) in enumerate(py.values)
+    for (i, row) in enumerate(proj.model_point_table.values)
       print(io, i, ',')
       data = pyconvert(Tuple, row)
       # Skip accum_prem_init_pp.
