@@ -67,10 +67,24 @@ end
     end
   end
 
+  proj.scen_size = 1
+
   @testset "Importing policy sets" begin
     policies = policies_from_lifelib("ex4/model_point_table_9.csv")
     policies_py = policies_from_lifelib(proj)
     @test policies == policies_py
+  end
+
+  @testset "Investment rates" begin
+    ts = timeseries(proj)
+    inv_rates_table = pyconvert(Array, proj.inv_return_table())
+    # All rates are the same across points.
+    # That would be akin to having all account values investing in the same commodities.
+    @test allequal(eachslice(inv_rates_table; dims = 1))
+    inv_rates_py = inv_rates_table[1, :]
+    n = length(inv_rates_py) - 1
+    model = EX4(investment_rng_numbers = timeseries(proj))
+    @test investment_rate.(model, simulation_range(n)) ≈ inv_rates_py
   end
 
   @testset "Simulation" begin

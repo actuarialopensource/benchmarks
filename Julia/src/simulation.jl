@@ -39,6 +39,8 @@ function simulate!(f, sim::Simulation, n::Int)
   sim
 end
 
+simulation_range(n::Int) = Month(0):Month(1):Month(n)
+
 function next!(sim::Simulation{EX4})
   (; model, time) = sim
   policies = sim.active_policies
