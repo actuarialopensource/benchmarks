@@ -62,7 +62,7 @@ end
 @testset "Importing policy sets" begin
   policies = policies_from_lifelib("ex4/model_point_table_9.csv")
   policies_py = policies_from_lifelib(proj.model_point_table)
-  @test policies_py == policies_py
+  @test policies == policies_py
 end
 
 @testset "Simulation" begin
