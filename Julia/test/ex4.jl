@@ -13,6 +13,10 @@ pyimport("openpyxl")
 !@isdefined(ex4) && (ex4 = mx.read_model("CashValue_ME_EX4"))
 proj = ex4.Projection
 
+# !@isdefined(se) && (se = mx.read_model("CashValue_SE").Projection)
+# se.model_point_table = proj.model_point_table
+# se.point_id = 1
+
 shape(py::Py) = Tuple(pyconvert.(Int, py.shape))
 ntimesteps(proj::Py) = pyconvert(Int, proj.max_proj_len())
 function timeseries(proj::Py)
@@ -129,5 +133,36 @@ end
       res[:net_cashflow] += current_net_cashflow
     end
     @test_broken res[:net_cashflow] ≈ 399477611.70743275
+  end
+
+  let t = 0
+    policies = [policies_from_lifelib(proj)[1]]
+    model = EX4(annual_lapse_rate = 0.00)
+    sim = Simulation(model, policies)
+    res = Dict(:net_cashflow => 0.0)
+    account_values = Dict{Policy,Float64}()
+    simulate!(sim, 5) do events
+      current_net_cashflow = 0.0
+      _account_value_change = 0.0
+      for (set, change) in events.account_changes
+        account_values[set.policy] = get(account_values, set.policy, 0.0) + change.net_changes
+        # dump(change)
+        _account_value_change += policy_count(set) * change.net_changes
+      end
+      current_net_cashflow = events.claimed + _account_value_change
+      # println("Current net cashflow (", length(events.account_changes), " policy sets): ", current_net_cashflow)
+  
+      premiums = sum(((set, change),) -> policy_count(set) * change.premium_paid, events.account_changes; init = 0.0)
+      # @show t pyconvert(Float64, proj.premiums(t)[0])
+      # @show current_net_cashflow pyconvert(Float64, proj.net_cf(t)[1])
+      @test premiums == pyconvert(Float64, proj.premiums(t)[0])
+      @test events.claimed == pyconvert(Float64, proj.claims(t)[0])
+      # @show pyconvert(Float64, proj.av_change(t)[0])
+      # @show pyconvert(Float64, proj.commissions(t)[0])
+      # @show pyconvert(Float64, proj.expenses(t)[0])
+      @test_broken _account_value_change == pyconvert(Float64, proj.av_change(t)[0])
+      res[:net_cashflow] += current_net_cashflow
+      t += 1
+    end
   end
 end;

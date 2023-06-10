@@ -3,20 +3,21 @@ struct AccountChanges
   premium_into_account::Float64
   account_fees::Float64
   insurance_cost::Float64
+  investments::Float64
   net_changes::Float64
 end
 
-struct SimulationEvents
+mutable struct SimulationEvents
   # Policy changes.
-  lapses::Vector{Pair{PolicySet,Float64}}
-  deaths::Vector{Pair{PolicySet,Float64}}
-  expirations::Vector{PolicySet}
-  starts::Vector{PolicySet}
-
-  account_changes::Vector{Pair{PolicySet,AccountChanges}}
+  const lapses::Vector{Pair{PolicySet,Float64}}
+  const deaths::Vector{Pair{PolicySet,Float64}}
+  const expirations::Vector{PolicySet}
+  claimed::Float64
+  const starts::Vector{PolicySet}
+  const account_changes::Vector{Pair{PolicySet,AccountChanges}}
 end
 
-SimulationEvents() = SimulationEvents(Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], PolicySet[], Pair{PolicySet,AccountChanges}[])
+SimulationEvents() = SimulationEvents(Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], 0.0, PolicySet[], Pair{PolicySet,AccountChanges}[])
 
 mutable struct Simulation{M<:Model}
   const model::M
@@ -53,7 +54,10 @@ function next!(sim::Simulation{EX4})
     lapses = lapse_rate * c
     # TODO: Implement mortality with a per-policy rate based on age.
     deaths = 0.0
-    policies[i] = PolicySet(set.policy, c - lapses - deaths)
+    (; policy) = set
+    policies[i] = PolicySet(policy, c - lapses - deaths)
+    events.claimed += lapses * (1 + 0.5investment_rate(model, time)) * policy.account_value
+    events.claimed += deaths * max((1 + 0.5investment_rate(model, time)) * policy.account_value, policy.assured)
     push!(events.lapses, set => lapses)
   end
 
@@ -61,6 +65,7 @@ function next!(sim::Simulation{EX4})
   # Remove policies which reached their term.
   filter!(policies) do set
     !matures(set, time) && return true
+    events.claimed += policy_count(set) * set.policy.account_value
     push!(events.expirations, set)
     false
   end
@@ -74,16 +79,18 @@ function next!(sim::Simulation{EX4})
   end
 
   ### BEF_DECR
-  # Compute premiums.
+  # Update account values.
 
   for (i, set) in enumerate(policies)
     (; policy) = set
     # `BEF_INV` (at t-1)
-    account_value = policy.account_value / set.count
+    (; account_value) = policy
     old_account_value = account_value
-    # TODO: Integrate investment income for the past month.
+    investments = investment_rate(model, time) * account_value
+    account_value += investments
     # `BEF_PREM`
-    premium_into_account = policy.premium * (1 - policy.product.load_premium_rate)
+    premium_paid = premium_cost(policy, time)
+    premium_into_account = premium_paid * (1 - policy.product.load_premium_rate)
     account_value += premium_into_account
     # `BEF_FEE`
     account_fees = account_value * model.account_fee_rate
@@ -91,14 +98,16 @@ function next!(sim::Simulation{EX4})
     insurance_cost = model.insurance_risk_cost * amount_at_risk(model, policy, account_value)
     account_value -= insurance_cost
     # `BEF_INV`
-    policies[i] = @set set.policy.account_value = account_value * set.count
-    push!(events.account_changes, set => AccountChanges(policy.premium, premium_into_account, account_fees, insurance_cost, account_value - old_account_value))
+    policies[i] = @set set.policy.account_value = account_value
+    push!(events.account_changes, set => AccountChanges(premium_paid, premium_into_account, account_fees, insurance_cost, investments, account_value - old_account_value))
   end
 
   # Update simulation state.
   sim.time += Month(1)
   events
 end
+
+premium_cost(policy, time) = policy.product.premium_type == PREMIUM_SINGLE && time ≠ policy.issued_at ? 0.0 : policy.premium
 
 matures(policy::Policy, time::Month) = policy.whole_life ? false : time == policy.issued_at + Month(policy.term)
 matures(set::PolicySet, time::Month) = matures(set.policy, time)
