@@ -134,35 +134,40 @@ end
     end
     @test_broken res[:net_cashflow] ≈ 399477611.70743275
   end
+end
 
+@testset begin
   let t = 0
-    policies = [policies_from_lifelib(proj)[1]]
-    model = EX4(annual_lapse_rate = 0.00)
+    policies = policies_from_lifelib(proj)
+    model = EX4()
     sim = Simulation(model, policies)
-    res = Dict(:net_cashflow => 0.0)
+    net_cashflow_total = Ref(0.0)
     account_values = Dict{Policy,Float64}()
     simulate!(sim, 5) do events
-      current_net_cashflow = 0.0
-      _account_value_change = 0.0
+      @test policy_count.(events.starts) == filter!(!iszero, pyconvert(Array, proj.pols_new_biz(t)))
+      premiums = Float64[]
+      commissions = Float64[]
+      investments = Float64[]
+      account_value_changes = Float64[]
       for (set, change) in events.account_changes
         account_values[set.policy] = get(account_values, set.policy, 0.0) + change.net_changes
-        # dump(change)
-        _account_value_change += policy_count(set) * change.net_changes
+        premium = policy_count(set) * change.premium_paid
+        push!(premiums, premium)
+        push!(commissions, premium * model.commission_rate)
+        push!(investments, policy_count(set) * change.investments)
+        push!(account_value_changes, policy_count(set) * change.net_changes)
       end
-      current_net_cashflow = events.claimed + _account_value_change
-      # println("Current net cashflow (", length(events.account_changes), " policy sets): ", current_net_cashflow)
-  
-      premiums = sum(((set, change),) -> policy_count(set) * change.premium_paid, events.account_changes; init = 0.0)
-      # @show t pyconvert(Float64, proj.premiums(t)[0])
-      # @show current_net_cashflow pyconvert(Float64, proj.net_cf(t)[1])
-      @test premiums == pyconvert(Float64, proj.premiums(t)[0])
-      @test events.claimed == pyconvert(Float64, proj.claims(t)[0])
-      # @show pyconvert(Float64, proj.av_change(t)[0])
-      # @show pyconvert(Float64, proj.commissions(t)[0])
-      # @show pyconvert(Float64, proj.expenses(t)[0])
-      @test_broken _account_value_change == pyconvert(Float64, proj.av_change(t)[0])
-      res[:net_cashflow] += current_net_cashflow
+      net_cashflow = sum(premiums; init = 0.0) + sum(account_value_changes; init = 0.0) - events.claimed - events.expenses - sum(commissions; init = 0.0)
+      @test premiums == pyconvert(Array, proj.premiums(t))
+      @test events.claimed == sum(pyconvert(Array, proj.claims(t)))
+      @test commissions == pyconvert(Array, proj.commissions(t))
+      @test events.expenses ≈ sum(pyconvert(Array, proj.expenses(t)))
+      @test investments ≈ pyconvert(Array, proj.inv_income(t))
+      @test net_cashflow ≈ sum(pyconvert(Array, proj.net_cf(t)))
+      net_cashflow_total[] += net_cashflow
       t += 1
     end
+    # TODO: Requires simulating until `ntimesteps(proj)`
+    # @test net_cashflow_total[] ≈ proj.pv_net_cf()
   end
 end;
