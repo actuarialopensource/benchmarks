@@ -30,6 +30,6 @@ export
   Sex, MALE, FEMALE,
   Policy, policies_from_lifelib,
   PolicySet, policy_count,
-  Model, EX4, investment_rate,
+  Model, EX4, investment_rate, brownian_motion,
   Simulation, SimulationResult, next!, simulate!, simulation_range
 end

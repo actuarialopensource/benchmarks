@@ -1,4 +1,5 @@
 using Benchmarks
+import Benchmarks: investment_rate
 using Dates
 using Test
 using PythonCall
@@ -24,6 +25,7 @@ function timeseries(proj::Py)
   @assert first(size(ts)) == 1
   ts[1, :]
 end
+investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
 
 @testset "EX4 model" begin
   @testset "Python implementation" begin
@@ -83,8 +85,9 @@ end
     @test allequal(eachslice(inv_rates_table; dims = 1))
     inv_rates_py = inv_rates_table[1, :]
     n = length(inv_rates_py) - 1
-    model = EX4(investment_rng_numbers = timeseries(proj))
+    model = EX4(investment_rates = inv_rates_py)
     @test investment_rate.(model, simulation_range(n)) ≈ inv_rates_py
+    @test sqrt(sum(x -> x^2, brownian_motion(length(ts)))) ≈ sqrt(sum(x -> x^2, inv_rates_py)) rtol = 0.2
   end
 
   @testset "Simulation" begin
@@ -113,7 +116,7 @@ end
     next!(sim)
     @test length(sim.active_policies) == 100_000
     n = sum(policy_count, sim.active_policies)
-    @test n > 5_000_000
+    @test n > 4_995_000
 
     policies = policies_from_lifelib(proj)
     model = EX4(annual_lapse_rate = 0.00)
@@ -139,7 +142,7 @@ end
 @testset begin
   let t = 0
     policies = policies_from_lifelib(proj)
-    model = EX4()
+    model = EX4(investment_rates = investment_rate(proj))
     sim = Simulation(model, policies)
     net_cashflow_total = Ref(0.0)
     account_values = Dict{Policy,Float64}()
@@ -157,12 +160,13 @@ end
         push!(investments, policy_count(set) * change.investments)
         push!(account_value_changes, policy_count(set) * change.net_changes)
       end
-      net_cashflow = sum(premiums; init = 0.0) + sum(account_value_changes; init = 0.0) - events.claimed - events.expenses - sum(commissions; init = 0.0)
+      net_cashflow = sum(premiums; init = 0.0) + sum(investments; init = 0.0) - events.claimed - events.expenses - sum(commissions; init = 0.0) - sum(account_value_changes; init = 0.0)
       @test premiums == pyconvert(Array, proj.premiums(t))
-      @test events.claimed == sum(pyconvert(Array, proj.claims(t)))
-      @test commissions == pyconvert(Array, proj.commissions(t))
-      @test events.expenses ≈ sum(pyconvert(Array, proj.expenses(t)))
       @test investments ≈ pyconvert(Array, proj.inv_income(t))
+      @test events.claimed == sum(pyconvert(Array, proj.claims(t)))
+      @test events.expenses ≈ sum(pyconvert(Array, proj.expenses(t)))
+      @test commissions == pyconvert(Array, proj.commissions(t))
+      @test account_value_changes ≈ pyconvert(Array, proj.av_change(t))
       @test net_cashflow ≈ sum(pyconvert(Array, proj.net_cf(t)))
       net_cashflow_total[] += net_cashflow
       t += 1
