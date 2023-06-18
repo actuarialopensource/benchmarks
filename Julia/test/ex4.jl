@@ -127,13 +127,13 @@ investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
     @test sum(policy_count, sim.active_policies) == 900.0
   end
 
+  policies = policies_from_lifelib(proj)
+  model = EX4(investment_rates = investment_rate(proj))
+  n = ntimesteps(proj)
   @testset "Cash flows" begin
-    policies = policies_from_lifelib(proj)
-    model = EX4(investment_rates = investment_rate(proj))
     sim = Simulation(model, policies)
-    n = ntimesteps(proj) - 1
-    pv_net_cashflow = 0.0
-    @time simulate!(sim, n) do events
+    final_cashflow = CashFlow()
+    simulate!(sim, n) do events
       t = Dates.value(events.time)
       @test policy_count.(events.starts) == filter!(!iszero, pyconvert(Array, proj.pols_new_biz(t)))
       cashflow = CashFlow(events, model)
@@ -144,14 +144,12 @@ investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
       @test cashflow.commissions ≈ sum(pyconvert(Array, proj.commissions(t)))
       @test cashflow.account_value_changes ≈ sum(pyconvert(Array, proj.av_change(t)))
       @test cashflow.net ≈ sum(pyconvert(Array, proj.net_cf(t)))
-      pv_net_cashflow += cashflow.discounted
+      final_cashflow += cashflow
     end
-    @show pv_net_cashflow
-    @show sum(pyconvert(Array, proj.pv_net_cf()))
-    sim = Simulation(model, policies)
-    @test pv_net_cashflow == CashFlow(sim, model, n).discounted
-    @test_broken pv_net_cashflow ≈ proj.pv_net_cf()
-  end;
+    discount_factors = Benchmarks.discount_rate.(model, simulation_range(n - 1))
+    @test discount_factors ≈ pyconvert(Array, proj.disc_factors())
+    @test final_cashflow.discounted ≈ sum(pyconvert(Array, proj.pv_net_cf()))
+  end
 
   @testset "Benchmarks" begin
     proj.clear_cache = 1
@@ -160,20 +158,16 @@ investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
     @info "EX4 model (Python): $(round(timing, digits = 3)) seconds"
     proj.clear_cache = 0
 
-    policies = policies_from_lifelib(proj)
-    model = EX4(investment_rates = investment_rate(proj))
-    n = ntimesteps(proj) - 1
     timing = median(@benchmark CashFlow(sim, model, n).discounted setup = begin
       policies = policies_from_lifelib(proj)
       model = EX4(investment_rates = investment_rate(proj))
+      n = ntimesteps(proj)
       sim = Simulation(model, policies)
     end)
     @info "EX4 model (Julia): $(round(timing.time/1e9, digits = 6)) seconds"
 
-    policies = policies_from_lifelib()
-    model = EX4(investment_rates = investment_rate(proj))
-    sim = Simulation(model, policies)
+    sim = Simulation(model, policies_from_lifelib())
     @info "EX4 model (1 million policy sets, Julia)"
     @time CashFlow(sim, model, n)
   end
-end
+end;

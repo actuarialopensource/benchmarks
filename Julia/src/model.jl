@@ -18,7 +18,7 @@ Base.@kwdef struct EX4 <: Model
   "Annual maintenance cost per policy."
   annual_maintenance_cost::Float64 = 500.0
   "Estimated average for the future devaluation of cash."
-  annual_discount_rate::Float64 = 0.02
+  annual_discount_rate::Float64 = 0.020201340026756
 end
 
 brownian_motion(n::Integer; μ = 0.02, σ = 0.03, Δt = 1/12) = exp.((μ - σ^2/2)Δt .+ σ√(Δt) .* randn(n)) .- 1
