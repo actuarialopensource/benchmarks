@@ -8,6 +8,7 @@ struct CashFlow
   net::Float64
   discounted::Float64
 end
+CashFlow() = CashFlow(0, 0, 0, 0, 0, 0, 0, 0)
 
 function CashFlow(premiums, investments, claims, expenses, commissions, account_value_changes, discount_factor)
   net = premiums + investments - claims - expenses - commissions - account_value_changes
@@ -27,4 +28,20 @@ function CashFlow(events::SimulationEvents, model::EX4)
     push!(account_value_changes, policy_count(set) * change.net_changes)
   end
   CashFlow(sum(premiums; init = 0.0), sum(investments; init = 0.0), events.claimed, events.expenses, sum(commissions; init = 0.0), sum(account_value_changes; init = 0.0), discount_rate(model, events.time))
+end
+
+@generated function Base.:(+)(x::CashFlow, y::CashFlow)
+  ex = Expr(:call, :CashFlow)
+  for field in fieldnames(CashFlow)
+    push!(ex.args, :(x.$field + y.$field))
+  end
+  ex
+end
+
+function CashFlow(sim::Simulation, model::EX4, n::Integer)
+  cashflow = Ref(CashFlow())
+  simulate!(sim, n) do events
+    cashflow[] += CashFlow(events, model)
+  end
+  cashflow[]
 end
