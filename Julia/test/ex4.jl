@@ -144,34 +144,24 @@ end
     policies = policies_from_lifelib(proj)
     model = EX4(investment_rates = investment_rate(proj))
     sim = Simulation(model, policies)
-    net_cashflow_total = Ref(0.0)
-    account_values = Dict{Policy,Float64}()
-    simulate!(sim, 5) do events
+    pv_net_cashflow = 0.0
+    annual_discount_rate = 0.02
+    simulate!(sim, ntimesteps(proj) - 1) do events
+      t = Dates.value(events.time)
       @test policy_count.(events.starts) == filter!(!iszero, pyconvert(Array, proj.pols_new_biz(t)))
-      premiums = Float64[]
-      commissions = Float64[]
-      investments = Float64[]
-      account_value_changes = Float64[]
-      for (set, change) in events.account_changes
-        account_values[set.policy] = get(account_values, set.policy, 0.0) + change.net_changes
-        premium = policy_count(set) * change.premium_paid
-        push!(premiums, premium)
-        push!(commissions, premium * model.commission_rate)
-        push!(investments, policy_count(set) * change.investments)
-        push!(account_value_changes, policy_count(set) * change.net_changes)
-      end
-      net_cashflow = sum(premiums; init = 0.0) + sum(investments; init = 0.0) - events.claimed - events.expenses - sum(commissions; init = 0.0) - sum(account_value_changes; init = 0.0)
-      @test premiums == pyconvert(Array, proj.premiums(t))
-      @test investments ≈ pyconvert(Array, proj.inv_income(t))
-      @test events.claimed == sum(pyconvert(Array, proj.claims(t)))
-      @test events.expenses ≈ sum(pyconvert(Array, proj.expenses(t)))
-      @test commissions == pyconvert(Array, proj.commissions(t))
-      @test account_value_changes ≈ pyconvert(Array, proj.av_change(t))
-      @test net_cashflow ≈ sum(pyconvert(Array, proj.net_cf(t)))
-      net_cashflow_total[] += net_cashflow
-      t += 1
+      cashflow = CashFlow(events, model)
+      @test cashflow.premiums ≈ sum(pyconvert(Array, proj.premiums(t)))
+      @test cashflow.investments ≈ sum(pyconvert(Array, proj.inv_income(t)))
+      @test cashflow.claims ≈ sum(pyconvert(Array, proj.claims(t)))
+      @test cashflow.expenses ≈ sum(pyconvert(Array, proj.expenses(t)))
+      @test cashflow.commissions ≈ sum(pyconvert(Array, proj.commissions(t)))
+      @test cashflow.account_value_changes ≈ sum(pyconvert(Array, proj.av_change(t)))
+      @test cashflow.net ≈ sum(pyconvert(Array, proj.net_cf(t)))
+      pv_net_cashflow += cashflow.discounted
     end
+    @show pv_net_cashflow
+    @show sum(pyconvert(Array, proj.pv_net_cf()))
     # TODO: Requires simulating until `ntimesteps(proj)`
-    # @test net_cashflow_total[] ≈ proj.pv_net_cf()
+    @test_broken pv_net_cashflow ≈ proj.pv_net_cf()
   end
 end;

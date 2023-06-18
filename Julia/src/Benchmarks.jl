@@ -25,11 +25,13 @@ using PythonCall
 include("policy.jl")
 include("model.jl")
 include("simulation.jl")
+include("cashflow.jl")
 
 export
   Sex, MALE, FEMALE,
   Policy, policies_from_lifelib,
   PolicySet, policy_count,
   Model, EX4, investment_rate, brownian_motion,
-  Simulation, SimulationResult, next!, simulate!, simulation_range
+  Simulation, SimulationResult, next!, simulate!, simulation_range,
+  CashFlow
 end

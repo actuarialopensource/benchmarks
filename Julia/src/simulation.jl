@@ -8,6 +8,7 @@ struct AccountChanges
 end
 
 mutable struct SimulationEvents
+  time::Month
   # Policy changes.
   const lapses::Vector{Pair{PolicySet,Float64}}
   const deaths::Vector{Pair{PolicySet,Float64}}
@@ -18,7 +19,7 @@ mutable struct SimulationEvents
   const account_changes::Vector{Pair{PolicySet,AccountChanges}}
 end
 
-SimulationEvents() = SimulationEvents(Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], 0.0, PolicySet[], 0.0, Pair{PolicySet,AccountChanges}[])
+SimulationEvents(time::Month) = SimulationEvents(time, Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], 0.0, PolicySet[], 0.0, Pair{PolicySet,AccountChanges}[])
 
 mutable struct Simulation{M<:Model}
   const model::M
@@ -47,7 +48,7 @@ simulation_range(n::Int) = Month(0):Month(1):Month(n)
 function next!(sim::Simulation{EX4})
   (; model, time) = sim
   policies = sim.active_policies
-  events = SimulationEvents()
+  events = SimulationEvents(time)
 
   ### BEF_MAT
   # Remove policies which reached their term.

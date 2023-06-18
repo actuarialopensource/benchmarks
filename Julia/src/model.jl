@@ -5,7 +5,6 @@ Base.broadcastable(model::Model) = Ref(model)
 mortality = read_csv("ex4/mortality.csv")
 
 Base.@kwdef struct EX4 <: Model
-  annual_discount_rate::Float64 = 0.02
   annual_lapse_rate::Float64 = 0.00
   mortality_rates_by_age::Vector{Float64} = zeros(200)
   maintenance_fee_rate::Float64 = 0.00
@@ -18,6 +17,8 @@ Base.@kwdef struct EX4 <: Model
   inflation_rate::Float64 = 0.01
   "Annual maintenance cost per policy."
   annual_maintenance_cost::Float64 = 500.0
+  "Estimated average for the future devaluation of cash."
+  annual_discount_rate::Float64 = 0.02
 end
 
 brownian_motion(n::Integer; μ = 0.02, σ = 0.03, Δt = 1/12) = exp.((μ - σ^2/2)Δt .+ σ√(Δt) .* randn(n)) .- 1
@@ -31,3 +32,5 @@ investment_rate(model::EX4, t::Month) = model.investment_rates[1 + Dates.value(t
 
 acquisition_cost(model::EX4) = model.acquisition_cost
 maintenance_cost(model::EX4, t::Month) = model.annual_maintenance_cost / 12 * (1 + model.inflation_rate)^(Dates.value(t)/12)
+
+discount_rate(model::EX4, time::Month) = (1 + monthly_rate(model.annual_discount_rate))^(-Dates.value(time))
