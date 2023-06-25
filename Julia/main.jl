@@ -9,7 +9,7 @@ function run_benchmarks()
             "mortality" => run_mortality_benchmarks(),
             "exposures" => run_exposure_benchmarks(),
             "basic_term_benchmark" => run_basic_term_benchmark(),
-            "savings" => run_savings_benchmark(),
+            "savings_benchmark" => run_savings_benchmark(),
         )
 end
 
