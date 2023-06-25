@@ -1,14 +1,14 @@
 basic_term_benchmark:
   Python jax basic_term_m:
-    mean: 234.77891559999904 milliseconds
+    mean: 222.2624261000007 milliseconds
     result: 14489630.534632105
   Python lifelib basic_term_m:
-    mean: 723.1984076999993 milliseconds
+    mean: 733.5743486999988 milliseconds
     result: 14489630.534629744
   Python scratch basic_term_m:
-    mean: 605.9050307999996 milliseconds
+    mean: 595.2756265000005 milliseconds
     result: 14489630.53463211
 mortality:
   Python PyMort:
-    mean: 1637.1809795499998 milliseconds
+    mean: 1712.7583645499994 milliseconds
     result: 1904.4865526636793
