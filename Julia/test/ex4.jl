@@ -16,10 +16,6 @@ pyimport("openpyxl")
 !@isdefined(ex4) && (ex4 = mx.read_model("CashValue_ME_EX4"))
 proj = ex4.Projection
 
-# !@isdefined(se) && (se = mx.read_model("CashValue_SE").Projection)
-# se.model_point_table = proj.model_point_table
-# se.point_id = 1
-
 shape(py::Py) = Tuple(pyconvert.(Int, py.shape))
 ntimesteps(proj::Py) = pyconvert(Int, proj.max_proj_len())
 function timeseries(proj::Py)
@@ -153,7 +149,7 @@ investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
 
   @testset "Benchmarks" begin
     proj.clear_cache = 1
-    timing = pyconvert(Float64, timeit.timeit("proj.pv_net_cf().sum()"; globals = pydict(; proj), number = 5))
+    timing = pyconvert(Float64, timeit.timeit("proj.pv_net_cf().sum()"; globals = pydict(; proj), number = 25))
     @test isa(timing, Float64)
     @info "EX4 model (Python): $(round(timing, digits = 3)) seconds"
     proj.clear_cache = 0

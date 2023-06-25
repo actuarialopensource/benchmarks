@@ -55,7 +55,8 @@ function next!(sim::Simulation{EX4})
   filter!(policies) do set
     !matures(set, time) && return true
     # The account value is claimed by the policy holder at expiration.
-    events.claimed += policy_count(set) * set.policy.account_value
+    events.claimed += policy_count(set) * max(set.policy.account_value, set.policy.assured)
+    push!(events.account_changes, set => AccountChanges(0, 0, 0, 0, 0, -set.policy.account_value))
     push!(events.expirations, set)
     false
   end
