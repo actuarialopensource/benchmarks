@@ -26,6 +26,7 @@ include("policy.jl")
 include("model.jl")
 include("simulation.jl")
 include("cashflow.jl")
+include("lifelib.jl")
 
 export
   Sex, MALE, FEMALE,
@@ -33,5 +34,6 @@ export
   PolicySet, policy_count,
   Model, EX4, investment_rate, brownian_motion,
   Simulation, SimulationResult, next!, simulate!, simulation_range,
-  CashFlow
+  CashFlow,
+  read_savings_model
 end

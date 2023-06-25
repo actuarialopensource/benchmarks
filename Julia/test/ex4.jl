@@ -5,16 +5,7 @@ using Dates
 using Test
 using PythonCall
 
-pydir = joinpath(dirname(pkgdir(Benchmarks)), "Python")
-os = pyimport("os")
-os.chdir(pydir)
-
-mx = pyimport("modelx")
-timeit = pyimport("timeit")
-pyimport("openpyxl")
-
-!@isdefined(ex4) && (ex4 = mx.read_model("CashValue_ME_EX4"))
-proj = ex4.Projection
+!@isdefined(proj) && (proj = read_savings_model())
 
 shape(py::Py) = Tuple(pyconvert.(Int, py.shape))
 ntimesteps(proj::Py) = pyconvert(Int, proj.max_proj_len())
@@ -149,6 +140,7 @@ investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
 
   @testset "Benchmarks" begin
     proj.clear_cache = 1
+    timeit = pyimport("timeit")
     timing = pyconvert(Float64, timeit.timeit("proj.pv_net_cf().sum()"; globals = pydict(; proj), number = 25))
     @test isa(timing, Float64)
     @info "EX4 model (Python): $(round(timing, digits = 3)) seconds"
