@@ -35,5 +35,5 @@ export
   Model, EX4, investment_rate, brownian_motion,
   Simulation, SimulationResult, next!, simulate!, simulation_range,
   CashFlow,
-  read_savings_model
+  read_savings_model, ntimesteps
 end

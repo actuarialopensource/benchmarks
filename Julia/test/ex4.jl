@@ -1,5 +1,4 @@
 using Benchmarks
-import Benchmarks: investment_rate
 using BenchmarkTools
 using Dates
 using Test
@@ -8,13 +7,11 @@ using PythonCall
 !@isdefined(proj) && (proj = read_savings_model())
 
 shape(py::Py) = Tuple(pyconvert.(Int, py.shape))
-ntimesteps(proj::Py) = pyconvert(Int, proj.max_proj_len())
 function timeseries(proj::Py)
   ts = pyconvert(Array, proj.std_norm_rand())
   @assert first(size(ts)) == 1
   ts[1, :]
 end
-investment_rate(proj::Py) = pyconvert(Array, proj.inv_return_table())[1, :]
 
 @testset "EX4 model" begin
   @testset "Python implementation" begin
