@@ -1,10 +1,9 @@
-const mort_df = Matrix{Float64}(read_csv("mort_table.csv")[:, 2:end])
-const model_points = read_csv("model_point_table.csv")
+const model_points = read_csv("basic_term/model_point_table.csv")
 const issue_age = model_points[:, :age_at_entry]
 
 Base.@kwdef struct BasicMortality
-  rates::Matrix{Float64} = Matrix{Float64}(read_csv("mort_table.csv")[:, 2:end])
-  issue_age::Vector{Int} = model_points[:, :age_at_entry]
+  rates::Matrix{Float64} = Matrix{Float64}(read_csv("basic_term/mort_table.csv")[:, 2:end])
+  issue_age::Vector{Int} = issue_age
 end
 
 get_annual_rate(table::BasicMortality, duration::Int) = table.rates[table.issue_age .+ duration .- 17, min(duration, 5)+1]

@@ -1,5 +1,5 @@
 const sum_assured = model_points[:, :sum_assured]
-const zero_spot = read_csv("disc_rate_ann.csv")[:, :zero_spot]
+const zero_spot = read_csv("basic_term/disc_rate_ann.csv")[:, :zero_spot]
 const sex = model_points[:, :sex]
 const inflation_rate = 0.01
 const expense_acq = 300
