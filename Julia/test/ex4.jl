@@ -63,6 +63,16 @@ end
     @test policies == policies_py
   end
 
+  @testset "Setting policies in Python" begin
+    policies_prev = policies_from_lifelib(proj)
+    policies = rand(PolicySet, 100)
+    use_policies!(proj, policies)
+    retrieved = policies_from_lifelib(proj)
+    @test retrieved == policies
+    use_policies!(proj, policies_prev)
+    @test policies_from_lifelib(proj) == policies_prev
+  end
+
   @testset "Investment rates" begin
     ts = timeseries(proj)
     inv_rates_table = pyconvert(Array, proj.inv_return_table())
@@ -150,9 +160,5 @@ end
       sim = Simulation(model, policies)
     end)
     @info "EX4 model (Julia): $(round(timing.time/1e9, digits = 6)) seconds"
-
-    sim = Simulation(model, policies_from_lifelib())
-    @info "EX4 model (1 million policy sets, Julia)"
-    @time CashFlow(sim, model, n)
   end
 end;

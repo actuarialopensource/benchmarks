@@ -38,6 +38,19 @@ Base.@kwdef struct Policy
   account_value::Float64 = 0.0
 end
 
+function Random.rand(rng::AbstractRNG, ::Random.SamplerType{Policy})
+  assured = rand(rng, 300_000:700_000)
+  # It seems like lifelib doesn't really handle policies with non-zero `issued_at`
+  # values well when setting them via `use_policies!`. Might require adjusting
+  # other parameters such as investment rates or something.
+  issued_at = Month(0)
+  # issued_at = Month(rand(rng, 0:120))
+  year_issued_at = Dates.value(issued_at) ÷ 12
+  product = rand(rng, (PRODUCT_A, PRODUCT_B, PRODUCT_C, PRODUCT_D))
+  whole_life = product in (PRODUCT_C, PRODUCT_D)
+  Policy(rand(rng, (MALE, FEMALE)), Year(rand(rng, 18:70)), whole_life, assured, assured - rand(rng, 10_000:100_000), issued_at, Year(year_issued_at + rand(rng, 5:20)), product, 0.0)
+end
+
 @enum Claim begin
   CLAIM_DEATH
   CLAIM_LAPSE
@@ -52,6 +65,8 @@ struct PolicySet
   count::Float64
 end
 
+Base.rand(rng::AbstractRNG, ::Random.SamplerType{PolicySet}) = PolicySet(rand(rng, Policy), rand(1.0:0.1:1000.0))
+
 policy_count(set::PolicySet) = set.count
 
 function policies_from_lifelib(file::AbstractString = "ex4/model_point_table_100K.csv")
@@ -63,9 +78,9 @@ function policies_from_lifelib(file::AbstractString = "ex4/model_point_table_100
     assured = row.sum_assured
     premium = row.premium_pp
     term = Year(row.policy_term)
-    whole_life = term == Year(9999)
     product = getproperty(@__MODULE__, Symbol(:PRODUCT_, row.spec_id))::Product
-    policy = Policy(; sex, age, whole_life, assured, premium, term, product)
+    whole_life = year == Year(9999) || product in (PRODUCT_C, PRODUCT_D)
+    policy = Policy(; sex, age, whole_life, assured, premium, term, product, issued_at = -Month(row.duration_mth))
     push!(policies, PolicySet(policy, row.policy_count))
   end
   policies
@@ -85,4 +100,36 @@ function policies_from_lifelib(proj::Py)
     println(io)
   end
   policies_from_lifelib(file)
+end
+
+function to_row(policy::PolicySet)
+  (; policy, count) = policy
+  spec_index = findfirst(==(policy.product), [PRODUCT_A, PRODUCT_B, PRODUCT_C, PRODUCT_D])::Int
+  spec_id = ('A', 'B', 'C', 'D')[spec_index]
+  sex = policy.sex == MALE ? 'M' : 'F'
+  (; spec_id, age_at_entry = Dates.value(policy.age), sex, policy_term = Dates.value(policy.term), policy_count = count, sum_assured = policy.assured, duration_mth = -Dates.value(policy.issued_at), premium_pp = policy.premium, av_pp_init = 0, accum_prem_init_pp = 0)
+end
+
+function to_dataframe(policies)
+  df = DataFrame(
+    :spec_id => Char[],
+    :age_at_entry => Int[],
+    :sex => Char[],
+    :policy_term => Int[],
+    :policy_count => Float64[],
+    :sum_assured => Int[],
+    :duration_mth => Int[],
+    :premium_pp => Int[],
+    :av_pp_init => Int[],
+    :accum_prem_init_pp => Int[],
+  )
+  for policy in policies
+    push!(df, to_row(policy))
+  end
+  df
+end
+
+function to_csv(policies, file = tempname())
+  CSV.write(file, to_dataframe(policies))
+  file
 end
