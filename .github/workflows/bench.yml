@@ -2,6 +2,7 @@ name: bench
 on:
   workflow_dispatch:
   push:
+  pull_request:
 jobs:
   bench-R:
     runs-on: ubuntu-latest
