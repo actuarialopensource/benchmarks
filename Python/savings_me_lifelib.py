@@ -9,7 +9,7 @@ m = mx.read_model("CashValue_ME_EX4")
 def savings_me_lifelib():
     m.Projection.clear_cache = 1
     m.Projection.scen_size = 1
-    model_file = join(dirname(dirname(__file__)), "Julia", "src", "data", "ex4", "model_point_table_10K.csv")
+    model_file = join(dirname(dirname(__file__)), "Julia", "src", "data", "savings", "model_point_table_10K.csv")
     m.Projection.model_point_table = pd.read_csv(model_file)
     return float(np.sum(m.Projection.pv_net_cf()))
 

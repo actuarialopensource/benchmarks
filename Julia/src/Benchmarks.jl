@@ -33,7 +33,7 @@ export
   Sex, MALE, FEMALE,
   Policy, policies_from_lifelib,
   PolicySet, policy_count,
-  Model, EX4, investment_rate, brownian_motion,
+  Model, LifelibSavings, investment_rate, brownian_motion,
   Simulation, SimulationResult, next!, simulate!, simulation_range,
   CashFlow,
   read_savings_model, ntimesteps, python_directory, use_policies!

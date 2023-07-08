@@ -1,3 +1,8 @@
+"""
+Present value of future cashflows as computed by a [`Simulation`](@ref) over a [`UniversalLifeModel`](@ref).
+
+The present value of future cashflows is estimated from the future cashflows using a model-provided discount rate.
+"""
 struct CashFlow
   premiums::Float64
   investments::Float64
@@ -15,7 +20,7 @@ function CashFlow(premiums, investments, claims, expenses, commissions, account_
   CashFlow(premiums, investments, claims, expenses, commissions, account_value_changes, net, net * discount_factor)
 end
 
-function CashFlow(events::SimulationEvents, model::EX4)
+function CashFlow(events::SimulationEvents, model::LifelibSavings)
   premiums = Float64[]
   commissions = Float64[]
   investments = Float64[]
@@ -30,6 +35,7 @@ function CashFlow(events::SimulationEvents, model::EX4)
   CashFlow(sum(premiums; init = 0.0), sum(investments; init = 0.0), events.claimed, events.expenses, sum(commissions; init = 0.0), sum(account_value_changes; init = 0.0), discount_rate(model, events.time))
 end
 
+# Adding two cashflows amounts to adding all of the fields together.
 @generated function Base.:(+)(x::CashFlow, y::CashFlow)
   ex = Expr(:call, :CashFlow)
   for field in fieldnames(CashFlow)
@@ -38,7 +44,7 @@ end
   ex
 end
 
-function CashFlow(sim::Simulation, model::EX4, n::Integer)
+function CashFlow(sim::Simulation, model::LifelibSavings, n::Integer)
   cashflow = Ref(CashFlow())
   simulate!(sim, n) do events
     cashflow[] += CashFlow(events, model)

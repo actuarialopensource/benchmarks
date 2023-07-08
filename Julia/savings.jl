@@ -3,8 +3,8 @@ using BenchmarkTools
 
 function run_savings_benchmark()
   proj = read_savings_model()
-  policies = policies_from_lifelib("ex4/model_point_table_10K.csv")
-  model = EX4(investment_rates = investment_rate(proj))
+  policies = policies_from_lifelib("savings/model_point_table_10K.csv")
+  model = LifelibSavings(investment_rates = investment_rate(proj))
   n = ntimesteps(proj)
   savings_benchmark = @benchmark CashFlow(sim, $model, $n).discounted setup = begin
     sim = Simulation($model, $policies)

@@ -1,10 +1,33 @@
+"""
+Model defining the evolution of policies with regards to lapses, cashflows and,
+for [`UniversalLifeModel`](@ref)s, account values for policy holders.
+
+Models are to be evaluated using a [`Simulation`](@ref).
+
+See also: [`Policy`](@ref)
+"""
 abstract type Model end
 
 Base.broadcastable(model::Model) = Ref(model)
 
-mortality = read_csv("ex4/mortality.csv")
+mortality = read_csv("savings/mortality.csv")
 
-Base.@kwdef struct EX4 <: Model
+"""
+Universal life model.
+
+The defining property of a universal life model is that the contract between an insurance company and a policy holder
+involves a client-managed bank account, where the policy holder is responsible for keeping the bank account appropriately filled.
+
+Lapses do not occur in absence of a payment, but rather when the bank account runs out of money while fees or premiums must be paid.
+It is, for example, for the policy holder to put a lot of money in the bank account and forget about it for a while, as opposed to a regular
+term life insurance model which requires frequent payments without such buffer.
+"""
+abstract type UniversalLifeModel <: Model end
+
+"""
+Universal life model reimplemented from [lifelib's savings library](https://lifelib.io/libraries/savings/index.html).
+"""
+Base.@kwdef struct LifelibSavings <: UniversalLifeModel
   annual_lapse_rate::Float64 = 0.00
   mortality_rates_by_age::Vector{Float64} = zeros(200)
   maintenance_fee_rate::Float64 = 0.00
@@ -24,13 +47,13 @@ end
 brownian_motion(n::Integer; μ = 0.02, σ = 0.03, Δt = 1/12) = exp.((μ - σ^2/2)Δt .+ σ√(Δt) .* randn(n)) .- 1
 monthly_rate(annual_rate) = (1 + annual_rate)^(1/12) - 1
 # TODO: Implement a mortality model.
-annual_mortality_rate(::EX4, ::Month) = 0.0
+annual_mortality_rate(::LifelibSavings, ::Month) = 0.0
 # TODO: Take the account value after the premium is versed and before account fees (`BEF_FEE`).
-amount_at_risk(::EX4, policy::Policy, av_before_fees) = max(av_before_fees, policy.assured)
+amount_at_risk(::LifelibSavings, policy::Policy, av_before_fees) = max(av_before_fees, policy.assured)
 
-investment_rate(model::EX4, t::Month) = model.investment_rates[1 + Dates.value(t)]
+investment_rate(model::LifelibSavings, t::Month) = model.investment_rates[1 + Dates.value(t)]
 
-acquisition_cost(model::EX4) = model.acquisition_cost
-maintenance_cost(model::EX4, t::Month) = model.annual_maintenance_cost / 12 * (1 + model.inflation_rate)^(Dates.value(t)/12)
+acquisition_cost(model::LifelibSavings) = model.acquisition_cost
+maintenance_cost(model::LifelibSavings, t::Month) = model.annual_maintenance_cost / 12 * (1 + model.inflation_rate)^(Dates.value(t)/12)
 
-discount_rate(model::EX4, time::Month) = (1 + monthly_rate(model.annual_discount_rate))^(-Dates.value(time))
+discount_rate(model::LifelibSavings, time::Month) = (1 + monthly_rate(model.annual_discount_rate))^(-Dates.value(time))
