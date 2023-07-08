@@ -120,5 +120,5 @@ end
 
 premium_cost(policy, time) = policy.product.premium_type == PREMIUM_SINGLE && time ≠ policy.issued_at ? 0.0 : policy.premium
 
-matures(policy::Policy, time::Month) = policy.whole_life ? false : time == policy.issued_at + Month(policy.term)
+matures(policy::Policy, time::Month) = time == policy.issued_at + Month(policy.term)
 matures(set::PolicySet, time::Month) = matures(set.policy, time)

@@ -21,6 +21,7 @@ using Accessors: @set
 using CSV
 using DataFrames
 using PythonCall
+using Random
 
 include("policy.jl")
 include("model.jl")
@@ -35,5 +36,5 @@ export
   Model, EX4, investment_rate, brownian_motion,
   Simulation, SimulationResult, next!, simulate!, simulation_range,
   CashFlow,
-  read_savings_model, ntimesteps, python_directory
+  read_savings_model, ntimesteps, python_directory, use_policies!
 end
