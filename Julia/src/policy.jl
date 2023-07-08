@@ -22,6 +22,9 @@ const PRODUCT_B = Product(PREMIUM_SINGLE, 1, 0.0)
 const PRODUCT_C = Product(PREMIUM_LEVEL, nothing, 0.1)
 const PRODUCT_D = Product(PREMIUM_LEVEL, 3, 0.05)
 
+"""
+Policy held with a corresponding account value.
+"""
 Base.@kwdef struct Policy
   sex::Sex = MALE
   age::Year = Year(20)
@@ -60,6 +63,11 @@ end
 age(policy) = policy.age
 age(policy, t::Month) = age(policy) + Year(t)
 
+"""
+Aggregation of a specific type of policy among many policy holders.
+
+The account for universal life models is therefore also unique among all policy holders, amounting to a total of `set.policy.account_value * policy_count(set)`
+"""
 struct PolicySet
   policy::Policy
   count::Float64
@@ -69,7 +77,10 @@ Base.rand(rng::AbstractRNG, ::Random.SamplerType{PolicySet}) = PolicySet(rand(rn
 
 policy_count(set::PolicySet) = set.count
 
-function policies_from_lifelib(file::AbstractString = "ex4/model_point_table_100K.csv")
+"""
+Import policies from CSV files compatible with the `lifelib` model.
+"""
+function policies_from_lifelib(file::AbstractString = "savings/model_point_table_100K.csv")
   df = read_csv(file)
   policies = PolicySet[]
   for row in eachrow(df)
@@ -86,6 +97,9 @@ function policies_from_lifelib(file::AbstractString = "ex4/model_point_table_100
   policies
 end
 
+"""
+Import the current policy sets (model points) from a projection model `proj`.
+"""
 function policies_from_lifelib(proj::Py)
   file = tempname()
   open(file, "w") do io

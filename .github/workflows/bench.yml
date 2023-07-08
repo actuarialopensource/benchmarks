@@ -117,4 +117,4 @@ jobs:
           git add .
           git commit -m "Bench and update README.md"
           git push
-  
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

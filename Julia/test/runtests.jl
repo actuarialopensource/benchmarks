@@ -20,5 +20,5 @@ using Test
     cfs = result_cf()
     @test isa(cfs, DataFrame)
 
-    include("ex4.jl")
+    include("savings.jl")
 end;

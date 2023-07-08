@@ -13,7 +13,7 @@ function timeseries(proj::Py)
   ts[1, :]
 end
 
-@testset "EX4 model" begin
+@testset "LifelibSavings model" begin
   @testset "Python implementation" begin
     @test ntimesteps(proj) == 121
 
@@ -58,7 +58,7 @@ end
   proj.scen_size = 1
 
   @testset "Importing policy sets" begin
-    policies = policies_from_lifelib("ex4/model_point_table_9.csv")
+    policies = policies_from_lifelib("savings/model_point_table_9.csv")
     policies_py = policies_from_lifelib(proj)
     @test policies == policies_py
   end
@@ -81,7 +81,7 @@ end
     @test allequal(eachslice(inv_rates_table; dims = 1))
     inv_rates_py = inv_rates_table[1, :]
     n = length(inv_rates_py) - 1
-    model = EX4(investment_rates = inv_rates_py)
+    model = LifelibSavings(investment_rates = inv_rates_py)
     @test investment_rate.(model, simulation_range(n)) ≈ inv_rates_py
     @test sqrt(sum(x -> x^2, brownian_motion(length(ts)))) ≈ sqrt(sum(x -> x^2, inv_rates_py)) rtol = 0.2
   end
@@ -92,7 +92,7 @@ end
       PolicySet(Policy(issued_at = Month(0)), 50),
       PolicySet(Policy(issued_at = Month(1)), 50),
     ]
-    model = EX4(annual_lapse_rate = 0.01)
+    model = LifelibSavings(annual_lapse_rate = 0.01)
     sim = Simulation(model, policies)
     @test length(sim.active_policies) == 1
     @test length(sim.inactive_policies) == 2
@@ -115,14 +115,14 @@ end
     @test n > 4_995_000
 
     policies = policies_from_lifelib(proj)
-    model = EX4(annual_lapse_rate = 0.00)
+    model = LifelibSavings(annual_lapse_rate = 0.00)
     sim = Simulation(model, policies)
     simulate!(sim, 12)
     @test sum(policy_count, sim.active_policies) == 900.0
   end
 
   policies = policies_from_lifelib(proj)
-  model = EX4(investment_rates = investment_rate(proj))
+  model = LifelibSavings(investment_rates = investment_rate(proj))
   n = ntimesteps(proj)
   @testset "Cash flows" begin
     sim = Simulation(model, policies)
@@ -150,15 +150,15 @@ end
     timeit = pyimport("timeit")
     timing = pyconvert(Float64, timeit.timeit("proj.pv_net_cf().sum()"; globals = pydict(; proj), number = 25))
     @test isa(timing, Float64)
-    @info "EX4 model (Python): $(round(timing, digits = 3)) seconds"
+    @info "LifelibSavings model (Python): $(round(timing, digits = 3)) seconds"
     proj.clear_cache = 0
 
     timing = median(@benchmark CashFlow(sim, model, n).discounted setup = begin
       policies = policies_from_lifelib(proj)
-      model = EX4(investment_rates = investment_rate(proj))
+      model = LifelibSavings(investment_rates = investment_rate(proj))
       n = ntimesteps(proj)
       sim = Simulation(model, policies)
     end)
-    @info "EX4 model (Julia): $(round(timing.time/1e9, digits = 6)) seconds"
+    @info "LifelibSavings model (Julia): $(round(timing.time/1e9, digits = 6)) seconds"
   end
 end;

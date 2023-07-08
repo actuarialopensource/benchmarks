@@ -1,3 +1,6 @@
+"""
+Account changes between two timesteps for a policy holder in a [`UniversalLifeModel`](@ref).
+"""
 struct AccountChanges
   premium_paid::Float64
   premium_into_account::Float64
@@ -7,13 +10,25 @@ struct AccountChanges
   net_changes::Float64
 end
 
+"""
+Events that happen as part of a simulation timestep for a [`Model`](@ref).
+
+These events are meant to be processed by the user in order to generate quantities of interest that
+do not involve simulation-related state. This is, for example, how the [`CashFlow`](@ref) quantities are computed.
+"""
 mutable struct SimulationEvents
+  "Month during which the events started to be simulated. Events occur between `time` and `time + Month(1) - Day(1)`."
   time::Month
   # Policy changes.
+  "Policy sets where lapses occurred, along with the number of lapsed policies. Lapses occur at the middle of the month."
   const lapses::Vector{Pair{PolicySet,Float64}}
+  "Policy sets where deaths occurred, along with the number of deceased policy holders. Deaths occur at the middle of the month."
   const deaths::Vector{Pair{PolicySet,Float64}}
+  "Policies which expired at the beginning of the month."
   const expirations::Vector{PolicySet}
+  "Amount resulting from expired or lapsed policies or for which the holder has died."
   claimed::Float64
+  "Policies which started at the beginning of the month."
   const starts::Vector{PolicySet}
   expenses::Float64
   const account_changes::Vector{Pair{PolicySet,AccountChanges}}
@@ -21,10 +36,24 @@ end
 
 SimulationEvents(time::Month) = SimulationEvents(time, Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], 0.0, PolicySet[], 0.0, Pair{PolicySet,AccountChanges}[])
 
+"""
+Simulation parametrized by a particular [`Model`](@ref).
+
+The simulation time starts at the current date by default.
+The simulation is carried out every month, producing events ([`SimulationEvents`]) corresponding
+to what happened between two timesteps, i.e. from one month to the other. The simulation is nonetheless
+stateful, meaning that such events may only be produced once; the next evaluation will return the events for the
+timestep after that.
+
+See also: [`next!`](@ref)
+"""
 mutable struct Simulation{M<:Model}
   const model::M
+  "Ongoing policies which haven't reached their term yet nor lapsed and whose holders haven't died."
   const active_policies::Vector{PolicySet}
+  "Policies which have yet to be started."
   const inactive_policies::Vector{PolicySet}
+  "Current simulation time, incremented after every simulation step."
   time::Month
 end
 
@@ -43,9 +72,24 @@ function simulate!(f, sim::Simulation, n::Int)
   sim
 end
 
-simulation_range(n::Int) = Month(0):Month(1):Month(n)
+simulation_range(n::Int, start::Int = 0) = Month(start):Month(1):Month(n)
 
-function next!(sim::Simulation{EX4})
+"""
+Perform a simulation timestep over the [`LifelibSavings`](@ref) model, returning a [`SimulationEvents`](@ref).
+
+First, the policies which reached their term are removed, yielding claims and account changes.
+
+Second, the policies which start from the current month are added, yielding expenses (costs for the insurance company).
+
+Third, all account values are updated, with:
+- A premium amount put into the bank account (minus fees, the load premium rate).
+- Maintenance fees withdrawn from the back account.
+- Insurance costs withdrawn from the back account.
+- Investments realized during the previous month.
+
+Then, at the middle of the month, deaths and lapses occur. Finally, the simulation time is incremented.
+"""
+function next!(sim::Simulation{LifelibSavings})
   (; model, time) = sim
   policies = sim.active_policies
   events = SimulationEvents(time)
@@ -110,7 +154,8 @@ function next!(sim::Simulation{EX4})
     policies[i] = PolicySet(policy, c - lapses - deaths)
     events.claimed += lapses * (1 + 0.5investment_rate(model, time)) * policy.account_value
     events.claimed += deaths * max((1 + 0.5investment_rate(model, time)) * policy.account_value, policy.assured)
-    push!(events.lapses, set => lapses)
+    !iszero(lapses) && push!(events.lapses, set => lapses)
+    !iszero(deaths) && push!(events.deaths, set => deaths)
   end
 
   # Update simulation state.
