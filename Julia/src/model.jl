@@ -8,6 +8,8 @@ See also: [`Policy`](@ref)
 """
 abstract type Model end
 
+monthly_mortality_rate(model::Model, age::Year, time::Month) = monthly_mortality_rate(model.mortality, age, time)
+
 Base.broadcastable(model::Model) = Ref(model)
 
 mortality = read_csv("savings/mortality.csv")
@@ -27,9 +29,9 @@ abstract type UniversalLifeModel <: Model end
 """
 Universal life model reimplemented from [lifelib's savings library](https://lifelib.io/libraries/savings/index.html).
 """
-Base.@kwdef struct LifelibSavings <: UniversalLifeModel
+Base.@kwdef struct LifelibSavings{M<:MortalityModel} <: UniversalLifeModel
   annual_lapse_rate::Float64 = 0.00
-  mortality_rates_by_age::Vector{Float64} = zeros(200)
+  mortality::M = ConstantMortality(0.0)
   maintenance_fee_rate::Float64 = 0.00
   commission_rate::Float64 = 0.05
   insurance_risk_cost::Float64 = 0.00 # could be set as a function of the mortality rate
@@ -50,6 +52,7 @@ monthly_rate(annual_rate) = (1 + annual_rate)^(1/12) - 1
 annual_mortality_rate(::LifelibSavings, ::Month) = 0.0
 # TODO: Take the account value after the premium is versed and before account fees (`BEF_FEE`).
 amount_at_risk(::LifelibSavings, policy::Policy, av_before_fees) = max(av_before_fees, policy.assured)
+monthly_lapse_rate(model::LifelibSavings) = monthly_rate(model.annual_lapse_rate)
 
 investment_rate(model::LifelibSavings, t::Month) = model.investment_rates[1 + Dates.value(t)]
 
@@ -57,3 +60,24 @@ acquisition_cost(model::LifelibSavings) = model.acquisition_cost
 maintenance_cost(model::LifelibSavings, t::Month) = model.annual_maintenance_cost / 12 * (1 + model.inflation_rate)^(Dates.value(t)/12)
 
 discount_rate(model::LifelibSavings, time::Month) = (1 + monthly_rate(model.annual_discount_rate))^(-Dates.value(time))
+
+"""
+Term life model.
+
+Term life contracts start at a given date, and expire at a specified term.
+Upon death, the policy may be claimed, providing the policy holder with an assured amount.
+
+Premiums must be paid every month, otherwise the contract is cancelled (lapses).
+"""
+abstract type TermLifeModel <: Model end
+
+Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
+  mortality::M = BasicMortality()
+  load_premium_rate::Float64 = 0.50
+  "One-time cost for new policies."
+  acquisition_cost::Float64 = 300.0
+  "Annual maintenance cost per policy."
+  annual_maintenance_cost::Float64 = 60.0
+  "Roughly estimated average for the inflation rate."
+  inflation_rate::Float64 = 0.01
+end

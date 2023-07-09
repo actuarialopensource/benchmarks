@@ -89,38 +89,97 @@ Third, all account values are updated, with:
 
 Then, at the middle of the month, deaths and lapses occur. Finally, the simulation time is incremented.
 """
-function next!(sim::Simulation{LifelibSavings})
-  (; model, time) = sim
-  policies = sim.active_policies
-  events = SimulationEvents(time)
+function next!(sim::Simulation{<:LifelibSavings})
+  events = SimulationEvents(sim.time)
 
-  ### BEF_MAT
-  # Remove policies which reached their term.
-  filter!(policies) do set
-    !matures(set, time) && return true
-    # The account value is claimed by the policy holder at expiration.
-    events.claimed += policy_count(set) * max(set.policy.account_value, set.policy.assured)
-    push!(events.account_changes, set => AccountChanges(0, 0, 0, 0, 0, -set.policy.account_value))
-    push!(events.expirations, set)
-    false
-  end
+  remove_expired_policies!(events, sim)
+  add_new_policies!(events, sim)
+  update_bank_accounts!(events, sim)
+  # At this point we are at `time` + 0.5 months.
+  simulate_deaths_and_lapses!(events, sim)
 
-  ### BEF_NB
-  # Add policies which start from this date.
+  sim.time += Month(1)
+  events
+end
+
+function next!(sim::Simulation{<:LifelibBasiclife})
+  events = SimulationEvents(sim.time)
+
+  remove_expired_policies!(events, sim)
+  add_new_policies!(events, sim)
+  simulate_deaths_and_lapses!(events, sim)
+
+  sim.time += Month(1)
+  events
+end
+
+"Add policies which start from this date."
+function add_new_policies!(events::SimulationEvents, sim::Simulation)
   filter!(sim.inactive_policies) do set
-    issued = time == set.policy.issued_at
+    issued = sim.time == set.policy.issued_at
     if issued
-      push!(policies, set)
+      push!(sim.active_policies, set)
       push!(events.starts, set)
-      events.expenses += policy_count(set) * acquisition_cost(model)
+      events.expenses += policy_count(set) * acquisition_cost(sim.model)
     end
     !issued
   end
+end
 
-  ### BEF_DECR
-  # Update account values.
+"Remove policies which reached their term."
+function remove_expired_policies!(events::SimulationEvents, sim::Simulation)
+  filter!(sim.active_policies) do set
+    expires(set, sim.time) || return true
+    push!(events.expirations, set)
+    false
+  end
+  on_expired!(events, sim.model)
+end
 
-  for (i, set) in enumerate(policies)
+expires(policy::Policy, time::Month) = time == policy.issued_at + Month(policy.term)
+expires(set::PolicySet, time::Month) = expires(set.policy, time)
+
+function simulate_deaths_and_lapses!(events::SimulationEvents, sim::Simulation)
+  lapse_rate = monthly_lapse_rate(sim.model)
+  for (i, set) in enumerate(sim.active_policies)
+    c = policy_count(set)
+    (; policy) = set
+    lapses = lapse_rate * c
+    deaths = monthly_mortality_rate(sim.model, policy.age, sim.time) * c
+    sim.active_policies[i] = PolicySet(policy, c - lapses - deaths)
+    !iszero(lapses) && push!(events.lapses, set => lapses)
+    !iszero(deaths) && push!(events.deaths, set => deaths)
+  end
+  on_deaths!(events, sim.model)
+  on_lapses!(events, sim.model)
+end
+
+on_deaths!(events::SimulationEvents, model::LifelibBasiclife) = nothing
+function on_deaths!(events::SimulationEvents, model::LifelibSavings)
+  for (set, deaths) in events.deaths
+    events.claimed += deaths * max((1 + 0.5investment_rate(model, events.time)) * set.policy.account_value, set.policy.assured)
+  end
+end
+
+on_lapses!(events::SimulationEvents, model::LifelibBasiclife) = nothing
+function on_lapses!(events::SimulationEvents, model::LifelibSavings)
+  for (set, lapses) in events.lapses
+    events.claimed += lapses * (1 + 0.5investment_rate(model, events.time)) * set.policy.account_value
+  end
+end
+
+on_expired!(events::SimulationEvents, model::LifelibBasiclife) = nothing
+function on_expired!(events::SimulationEvents, model::LifelibSavings)
+  for set in events.expirations
+    # The account value is claimed by the policy holder at expiration.
+    events.claimed += policy_count(set) * max(set.policy.account_value, set.policy.assured)
+    push!(events.account_changes, set => AccountChanges(0, 0, 0, 0, 0, -set.policy.account_value))
+  end
+end
+
+function update_bank_accounts!(events::SimulationEvents, sim::Simulation{<:LifelibSavings})
+  (; model, time) = sim
+  for (i, set) in enumerate(sim.active_policies)
     events.expenses += maintenance_cost(model, time) * policy_count(set)
 
     (; policy) = set
@@ -138,32 +197,9 @@ function next!(sim::Simulation{LifelibSavings})
     # `BEF_INV`
     investments = investment_rate(model, time) * account_value
     account_value += investments
-    policies[i] = @set set.policy.account_value = account_value
+    sim.active_policies[i] = @set set.policy.account_value = account_value
     push!(events.account_changes, set => AccountChanges(premium_paid, premium_into_account, fee, insurance_cost, investments, account_value - old_account_value))
   end
-
-  # Lapses, deaths.
-  # At this point we are at `time` + 0.5 (half a month after `time`).
-  lapse_rate = monthly_rate(model.annual_lapse_rate)
-  for (i, set) in enumerate(policies)
-    c = policy_count(set)
-    lapses = lapse_rate * c
-    # TODO: Implement mortality with a per-policy rate based on age.
-    deaths = 0.0
-    (; policy) = set
-    policies[i] = PolicySet(policy, c - lapses - deaths)
-    events.claimed += lapses * (1 + 0.5investment_rate(model, time)) * policy.account_value
-    events.claimed += deaths * max((1 + 0.5investment_rate(model, time)) * policy.account_value, policy.assured)
-    !iszero(lapses) && push!(events.lapses, set => lapses)
-    !iszero(deaths) && push!(events.deaths, set => deaths)
-  end
-
-  # Update simulation state.
-  sim.time += Month(1)
-  events
 end
 
 premium_cost(policy, time) = policy.product.premium_type == PREMIUM_SINGLE && time ≠ policy.issued_at ? 0.0 : policy.premium
-
-matures(policy::Policy, time::Month) = time == policy.issued_at + Month(policy.term)
-matures(set::PolicySet, time::Month) = matures(set.policy, time)
