@@ -63,6 +63,7 @@ function Simulation(model::Model, policies, time = Month(0))
   Simulation(model, active, inactive, time)
 end
 
+simulate(f, model::Model, policies, n::Int) = simulate!(f, Simulation(model, policies), n)
 simulate!(sim::Simulation, n::Int) = simulate!(identity, sim, n)
 function simulate!(f, sim::Simulation, n::Int)
   for i in 1:n
@@ -70,6 +71,55 @@ function simulate!(f, sim::Simulation, n::Int)
     f(events)
   end
   sim
+end
+
+"Perform a first simulation to estimate the premiums to set per policy."
+function compute_premiums!(sim::Simulation{<:LifelibBasiclife}, n::Int)
+  policies = compute_premiums(sim.model, [sim.active_policies; sim.inactive_policies], n)
+  empty!(sim.active_policies)
+  copyto!(sim.inactive_policies, policies)
+  sim.time = Month(0)
+  sim
+end
+
+function simulate!(f, sim::Simulation{<:LifelibBasiclife}, n::Int)
+  compute_premiums!(sim, n)
+  for i in 1:n
+    events = next!(sim)
+    f(events)
+  end
+  sim
+end
+
+function compute_premiums(model::LifelibBasiclife, policies, n)
+  policy_counts = policy_count.(policies)
+  expired = Set{PolicySet}()
+  discounted_claims = zeros(length(policies))
+  discounted_policy_counts = zeros(length(policies))
+
+  # Record claims associated to deaths at `time` and the policy counts at `time + 1`.
+  for time in simulation_range(n + 1)
+    discount = discount_rate(model, time)
+    lapse_rate = monthly_lapse_rate(model, time)
+    for (i, set) in enumerate(policies)
+      expires(set, time) && push!(expired, set)
+      in(set, expired) && continue
+      current_count = policy_counts[i]
+      discounted_policy_counts[i] += current_count * discount
+      mortality_rate = monthly_mortality_rate(model, set.policy.age + Year(Dates.value(time ÷ 12)), time)
+      deaths = mortality_rate * current_count
+      current_count -= deaths
+      discounted_claims[i] += deaths * set.policy.assured * discount
+      lapses = lapse_rate * current_count
+      current_count -= lapses
+      policy_counts[i] = current_count
+    end
+  end
+
+  map(enumerate(policies)) do (i, set)
+    raw_premium = discounted_claims[i] / (policy_count(set) * discounted_policy_counts[i])
+    @set set.policy.premium = round((1 + model.load_premium_rate) * raw_premium; digits = 2)
+  end
 end
 
 simulation_range(n::Int, start::Int = 0) = Month(start):Month(1):Month(n)
@@ -102,11 +152,13 @@ function next!(sim::Simulation{<:LifelibSavings})
   events
 end
 
-function next!(sim::Simulation{<:LifelibBasiclife})
+function next!(sim::Simulation{<:LifelibBasiclife}; callback = identity)
   events = SimulationEvents(sim.time)
 
   remove_expired_policies!(events, sim)
   add_new_policies!(events, sim)
+  callback(sim)
+  # At this point we are at `time` + 0.5 months.
   simulate_deaths_and_lapses!(events, sim)
 
   sim.time += Month(1)
@@ -140,13 +192,16 @@ expires(policy::Policy, time::Month) = time == policy.issued_at + Month(policy.t
 expires(set::PolicySet, time::Month) = expires(set.policy, time)
 
 function simulate_deaths_and_lapses!(events::SimulationEvents, sim::Simulation)
-  lapse_rate = monthly_lapse_rate(sim.model)
+  lapse_rate = monthly_lapse_rate(sim.model, events.time)
   for (i, set) in enumerate(sim.active_policies)
-    c = policy_count(set)
+    remaining = policy_count(set)
     (; policy) = set
-    lapses = lapse_rate * c
-    deaths = monthly_mortality_rate(sim.model, policy.age, sim.time) * c
-    sim.active_policies[i] = PolicySet(policy, c - lapses - deaths)
+    mortality_rate = monthly_mortality_rate(sim.model, policy.age + Year(Dates.value(events.time ÷ 12)), events.time)
+    deaths = mortality_rate * remaining
+    remaining -= deaths
+    lapses = lapse_rate * remaining
+    remaining -= lapses
+    sim.active_policies[i] = PolicySet(policy, remaining)
     !iszero(lapses) && push!(events.lapses, set => lapses)
     !iszero(deaths) && push!(events.deaths, set => deaths)
   end
@@ -154,7 +209,7 @@ function simulate_deaths_and_lapses!(events::SimulationEvents, sim::Simulation)
   on_lapses!(events, sim.model)
 end
 
-on_deaths!(events::SimulationEvents, model::LifelibBasiclife) = nothing
+on_deaths!(events::SimulationEvents, model::LifelibBasiclife) = events.claimed += sum(((set, deaths),) -> set.policy.assured * deaths, events.deaths; init = 0.0)
 function on_deaths!(events::SimulationEvents, model::LifelibSavings)
   for (set, deaths) in events.deaths
     events.claimed += deaths * max((1 + 0.5investment_rate(model, events.time)) * set.policy.account_value, set.policy.assured)

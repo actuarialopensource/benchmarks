@@ -2,7 +2,7 @@ abstract type MortalityModel end
 
 Base.broadcastable(model::MortalityModel) = Ref(model)
 
-monthly_mortality_rate(model::MortalityModel, age::Year, time::Month) = 1 .- (1 .- annual_mortality_rate(model, age, time)) .^ (1/12)
+monthly_mortality_rate(model::MortalityModel, age::Year, time::Month) = 1 - (1 - annual_mortality_rate(model, age, time)) ^ (1/12)
 
 const model_points = read_csv("basic_term/model_point_table.csv")
 const issue_age = model_points[:, :age_at_entry]
@@ -24,7 +24,6 @@ annual_mortality_rate(model::ConstantMortality, year::Year, time::Month) = model
 const basic_mortality = BasicMortality()
 
 const cache_monthly_basic_mortality = Dict{Tuple{Int},Vector{Float64}}()
-# monthly_mortality_rates(model::BasicMortality, t::Int) = monthly_rate.(model.rates[model.issue_age .+ (t ÷ 12) .- 17, min(t ÷ 12, 5) + 1])
 monthly_mortality_rates(model::BasicMortality, t::Int) = 1 .- (1 .- model.rates[model.issue_age .+ (t ÷ 12) .- 17, min(t ÷ 12, 5) + 1]) .^ (1/12)
 @memoize Returns(cache_monthly_basic_mortality)() monthly_basic_mortality(t) = monthly_mortality_rates(basic_mortality, t)
 policies_death(t) = policies_inforce(t) .* monthly_basic_mortality(t)

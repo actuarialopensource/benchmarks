@@ -34,7 +34,7 @@ export
   Policy, policies_from_lifelib,
   PolicySet, policy_count,
   Model, LifelibSavings, investment_rate, brownian_motion, LifelibBasiclife,
-  Simulation, SimulationResult, next!, simulate!, simulation_range,
+  Simulation, SimulationResult, next!, simulate, simulate!, simulation_range,
   CashFlow,
   read_savings_model, ntimesteps, python_directory, use_policies!
 end

@@ -15,7 +15,7 @@ commissions(t::Int) = duration(t) == 0 ? premiums(t) : 0.0
 disc_factors() = [(1 + disc_rate_mth(t))^(-t) for t in final_timestep[]]
 disc_rate_mth(t::Int)::Float64 = (1 + disc_rate_ann(duration(t)))^(1/12) - 1
 disc_rate_ann(t::Int)::Float64 = 0.05
-expenses(t::Int) = t == 0 ? expense_acq .+ (policies_inforce(t) .* (expense_maint / 12) .* inflation_factor(t)) : (policies_inforce(t) .* (expense_maint / 12) .* inflation_factor(t))
+expenses(t::Int) = policies_inforce(t) .* ((t == 0 ? expense_acq : 0.0) .+ (expense_maint / 12) .* inflation_factor(t))
 inflation_factor(t::Int) = (1 .+ inflation_rate).^(t/12)
 disc_factor(t) = (1 + zero_spot[duration(t)+1])^(-t/12)
 pv_claims() = foldl((res, t) -> (res .+= claims(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, length(issue_age)))

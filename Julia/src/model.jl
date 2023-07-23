@@ -8,7 +8,10 @@ See also: [`Policy`](@ref)
 """
 abstract type Model end
 
+# XXX: Clarify conversions from 0-based and 1-based annual "rates" to monthly "rates".
+monthly_rate(annual_rate) = (1 + annual_rate)^(1/12) - 1
 monthly_mortality_rate(model::Model, age::Year, time::Month) = monthly_mortality_rate(model.mortality, age, time)
+monthly_lapse_rate(model::Model, time::Month) = (1 - (1 - annual_lapse_rate(model, time))^(1/12))
 
 Base.broadcastable(model::Model) = Ref(model)
 
@@ -47,12 +50,11 @@ Base.@kwdef struct LifelibSavings{M<:MortalityModel} <: UniversalLifeModel
 end
 
 brownian_motion(n::Integer; μ = 0.02, σ = 0.03, Δt = 1/12) = exp.((μ - σ^2/2)Δt .+ σ√(Δt) .* randn(n)) .- 1
-monthly_rate(annual_rate) = (1 + annual_rate)^(1/12) - 1
 # TODO: Implement a mortality model.
 annual_mortality_rate(::LifelibSavings, ::Month) = 0.0
 # TODO: Take the account value after the premium is versed and before account fees (`BEF_FEE`).
 amount_at_risk(::LifelibSavings, policy::Policy, av_before_fees) = max(av_before_fees, policy.assured)
-monthly_lapse_rate(model::LifelibSavings) = monthly_rate(model.annual_lapse_rate)
+annual_lapse_rate(model::LifelibSavings, ::Month) = model.annual_lapse_rate
 
 investment_rate(model::LifelibSavings, t::Month) = model.investment_rates[1 + Dates.value(t)]
 
@@ -80,4 +82,10 @@ Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
   annual_maintenance_cost::Float64 = 60.0
   "Roughly estimated average for the inflation rate."
   inflation_rate::Float64 = 0.01
+  discounts::Vector{Float64} = read_csv("basic_term/disc_rate_ann.csv")[:, :zero_spot]
 end
+
+inflation_factor(model::LifelibBasiclife, month::Month) = (1 + model.inflation_rate)^(Dates.value(month) / 12)
+acquisition_cost(model::LifelibBasiclife) = model.acquisition_cost
+annual_lapse_rate(model::LifelibBasiclife, time::Month) = max(0.1 - 0.02 * (Dates.value(time) ÷ 12), 0.02)
+discount_rate(model::LifelibBasiclife, time::Month) = (1 + model.discounts[1 + Dates.value(time) ÷ 12])^(-Dates.value(time) / 12)

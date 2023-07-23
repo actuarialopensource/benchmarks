@@ -1,3 +1,5 @@
+using Benchmarks: compute_premiums
+
 @testset "Memoized term life model" begin
   empty!(B.cache_monthly_basic_mortality)
   empty!(B.cache_policies_inforce)
@@ -22,6 +24,38 @@ end
 
 @testset "Simulated term life model" begin
   model = LifelibBasiclife()
-  # TODO: add tests
-  # policies = policies_from_lifelib("basic_term/model_point_table.csv")
-end
+
+  @test B.monthly_mortality_rate(model, Year(47), Month(0)) == B.monthly_mortality_rates(B.basic_mortality, 0)[1]
+  @test B.monthly_mortality_rate(model, Year(49), Month(24)) == B.monthly_mortality_rates(B.basic_mortality, 24)[1]
+  @test B.monthly_mortality_rate(model, Year(51), Month(49)) == B.monthly_mortality_rates(B.basic_mortality, 49)[1]
+  @test B.monthly_mortality_rate(model, Year(26), Month(49)) == B.monthly_mortality_rates(B.basic_mortality, 49)[end]
+  @test B.annual_lapse_rate(model, Month(0)) == B.lapse_rate(0)
+  @test B.annual_lapse_rate(model, Month(12)) == B.lapse_rate(12)
+  @test B.monthly_lapse_rate(model, Month(0)) == (1 - (1 - B.lapse_rate(0))^(1/12))
+  @test B.discount_rate(model, Month(0)) == B.disc_factor(0)
+  @test B.discount_rate(model, Month(50)) == B.disc_factor(50)
+
+  policies = policies_from_lifelib("basic_term/model_point_table.csv")
+  n = B.final_timestep[]
+  sim = Simulation(model, policies)
+  simulate!(sim, n) do events
+    t = Dates.value(events.time)
+    t > 0 && @test sum(policy_count, events.expirations; init = 0.0) ≈ sum(B.policies_maturity(t))
+    @test sum(last, events.deaths) ≈ sum(B.policies_death(t))
+    @test sum(last, events.lapses) ≈ sum(B.policies_lapse(t))
+    @test sum(policy_count, sim.active_policies) ≈ sum(B.policies_inforce(t) .- B.policies_death(t) .- B.policies_lapse(t))
+    @test events.claimed ≈ sum(B.claims(t))
+  end
+
+  with_adjusted_premiums = compute_premiums(model, policies, n)
+  @test (x -> x.policy.premium).(with_adjusted_premiums) == B.premium_pp()
+
+  cashflow = CashFlow(Simulation(model, policies), 1)
+  @test cashflow.expenses ≈ sum(B.expenses(0))
+  cashflow = CashFlow(Simulation(model, policies), n)
+  @test sum(sum.(B.claims.(0:n))) ≈ cashflow.claims
+  @test sum(sum.(B.premiums.(0:n))) ≈ cashflow.premiums
+  @test sum(sum.(B.commissions.(0:n))) ≈ cashflow.commissions
+  @test sum(sum.(B.expenses.(0:n))) ≈ cashflow.expenses
+  @test sum(pv_net_cf()) ≈ cashflow.discounted
+end;
