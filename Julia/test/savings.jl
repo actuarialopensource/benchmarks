@@ -143,6 +143,7 @@ end
     discount_factors = Benchmarks.discount_rate.(model, simulation_range(n - 1))
     @test discount_factors ≈ pyconvert(Array, proj.disc_factors())
     @test final_cashflow.discounted ≈ sum(pyconvert(Array, proj.pv_net_cf()))
+    @test final_cashflow == CashFlow(Simulation(model, policies), n)
   end
 
   @testset "Benchmarks" begin
@@ -153,7 +154,7 @@ end
     @info "LifelibSavings model (Python): $(round(timing, digits = 3)) seconds"
     proj.clear_cache = 0
 
-    timing = median(@benchmark CashFlow(sim, model, n).discounted setup = begin
+    timing = median(@benchmark CashFlow(sim, n).discounted setup = begin
       policies = policies_from_lifelib(proj)
       model = LifelibSavings(investment_rates = investment_rate(proj))
       n = ntimesteps(proj)
