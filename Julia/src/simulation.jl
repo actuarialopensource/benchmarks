@@ -91,6 +91,12 @@ function simulate!(f, sim::Simulation{<:LifelibBasiclife}, n::Int)
   sim
 end
 
+"""
+Run a first simulation to estimate premiums for each policy, returning policies with the estimated premiums.
+
+Instead of running a full simulation, and producing a [`SimulationEvents`](@ref) at every step,
+we go through the lapse and mortality stages manually to speed it up a bit.
+"""
 function compute_premiums(model::LifelibBasiclife, policies, n)
   policy_counts = policy_count.(policies)
   expired = Set{PolicySet}()
@@ -152,6 +158,18 @@ function next!(sim::Simulation{<:LifelibSavings})
   events
 end
 
+"""
+Perform a simulation timestep over the [`LifelibBasiclife`](@ref) model, returning a [`SimulationEvents`](@ref).
+
+First, the policies which reached their term are removed, yielding claims and account changes.
+
+Second, the policies which start from the current month are added, yielding expenses (costs for the insurance company).
+
+Then, at the middle of the month, deaths and lapses occur. Finally, the simulation time is incremented.
+
+A callback may be run just before the deaths and lapses occur, as the original `basiclife` model considers
+lapses and deaths to be part of the next iteration (i.e., deaths and lapses occur prior to the next step, and not in the current step).
+"""
 function next!(sim::Simulation{<:LifelibBasiclife}; callback = identity)
   events = SimulationEvents(sim.time)
 
