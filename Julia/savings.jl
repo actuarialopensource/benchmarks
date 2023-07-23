@@ -6,10 +6,10 @@ function run_savings_benchmark()
   policies = policies_from_lifelib("savings/model_point_table_10K.csv")
   model = LifelibSavings(investment_rates = investment_rate(proj))
   n = ntimesteps(proj)
-  savings_benchmark = @benchmark CashFlow(sim, $model, $n).discounted setup = begin
+  savings_benchmark = @benchmark CashFlow(sim, $n).discounted setup = begin
     sim = Simulation($model, $policies)
   end
-  savings = CashFlow(Simulation(model, policies), model, n).discounted
+  savings = CashFlow(Simulation(model, policies), n).discounted
   Dict(
     "Julia Benchmarks savings" => Dict(
       "mean" => string(mean(savings_benchmark)),
