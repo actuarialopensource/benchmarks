@@ -5,6 +5,7 @@ using Test
 using PythonCall
 
 !@isdefined(proj) && (proj = read_savings_model())
+proj.scen_size = 1
 
 shape(py::Py) = Tuple(pyconvert.(Int, py.shape))
 function timeseries(proj::Py)
