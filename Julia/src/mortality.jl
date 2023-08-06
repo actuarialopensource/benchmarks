@@ -4,7 +4,7 @@ Base.broadcastable(model::MortalityModel) = Ref(model)
 
 monthly_mortality_rate(model::MortalityModel, age::Year, time::Month) = 1 - (1 - annual_mortality_rate(model, age, time)) ^ (1/12)
 
-const model_points = read_csv("basic_term/model_point_table.csv")
+const model_points = read_csv("basic_term/model_point_table_10K.csv")
 const issue_age = model_points[:, :age_at_entry]
 
 Base.@kwdef struct BasicMortality <: MortalityModel
