@@ -35,7 +35,7 @@ end
   @test B.discount_rate(model, Month(0)) == B.disc_factor(0)
   @test B.discount_rate(model, Month(50)) == B.disc_factor(50)
 
-  policies = policies_from_lifelib("basic_term/model_point_table.csv")
+  policies = policies_from_lifelib("basic_term/model_point_table_10K.csv")
   n = B.final_timestep[]
   sim = Simulation(model, policies)
   simulate!(sim, n) do events

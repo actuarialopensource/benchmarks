@@ -90,7 +90,7 @@ function policies_from_lifelib(file::AbstractString = "savings/model_point_table
     premium = get(row, :premium_pp, 0.0)
     term = Year(row.policy_term)
     product = getproperty(@__MODULE__, Symbol(:PRODUCT_, get(row, :spec_id, :A)))::Product
-    whole_life = year == Year(9999) || product in (PRODUCT_C, PRODUCT_D)
+    whole_life = term == Year(9999) || product in (PRODUCT_C, PRODUCT_D)
     policy = Policy(; sex, age, whole_life, assured, premium, term, product, issued_at = -Month(get(row, :duration_mth, 0)))
     push!(policies, PolicySet(policy, row.policy_count))
   end
