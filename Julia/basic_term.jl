@@ -1,9 +1,7 @@
 import Benchmarks as B
 
 function cf1()
-    empty!(B.cache_policies_inforce)
-    empty!(B.cache_premiums_pp)
-    empty!(B.cache_monthly_basic_mortality)
+    B.empty_memoization_caches!()
     sum(B.pv_net_cf())
 end
 
