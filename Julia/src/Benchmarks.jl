@@ -14,6 +14,10 @@ end
 const final_timestep = Ref{Int}(240)
 duration(t::Int) = t ÷ 12
 
+const sum_assured = Ref{Vector{Int}}()
+const issue_age = Ref{Vector{Int}}()
+const current_policies_term = Ref{Vector{Int}}()
+
 include("mortality.jl")
 include("basic_term.jl")
 
@@ -29,7 +33,12 @@ include("simulation.jl")
 include("cashflow.jl")
 include("lifelib.jl")
 
+const basic_term_policies = Ref{Vector{PolicySet}}()
+const basic_mortality = Ref{BasicMortality}()
+set_basic_term_policies!(policies_from_lifelib("basic_term/model_point_table_10K.csv"))
+
 export
+  empty_memoization_caches!, set_basic_term_policies!,
   Sex, MALE, FEMALE,
   Policy, policies_from_lifelib,
   PolicySet, policy_count,

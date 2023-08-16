@@ -1,9 +1,7 @@
 using Benchmarks: compute_premiums
 
 @testset "Memoized term life model" begin
-  empty!(B.cache_monthly_basic_mortality)
-  empty!(B.cache_policies_inforce)
-  empty!(B.cache_premiums_pp)
+  empty_memoization_caches!()
 
   @test B.policies_inforce(200)[1:3] == [0.000000, 0.5724017900070532, 0.000000]
   @test B.claims(130)[1:3] ≈ [0.0, 28.82531005791726, 0.0]
@@ -20,15 +18,26 @@ using Benchmarks: compute_premiums
   @test isa(pvs, DataFrame)
   cfs = result_cf()
   @test isa(cfs, DataFrame)
+
+  @testset "Changing model points" begin
+    @test B.npoints() == length(pv_claims()) == 10_000
+    @test pv_claims()[1:3] ≈ [5501.19489836432, 5956.471604652321, 9190.425784230943]
+    set_basic_term_policies!(policies_from_lifelib("basic_term/model_point_table_100.csv"))
+    @test B.npoints() == length(pv_claims()) == 100
+    @test pv_claims()[1:3] ≉ [5501.19489836432, 5956.471604652321, 9190.425784230943]
+    set_basic_term_policies!(policies_from_lifelib("basic_term/model_point_table_10K.csv"))
+    @test B.npoints() == length(pv_claims()) == 10_000
+    @test pv_claims()[1:3] ≈ [5501.19489836432, 5956.471604652321, 9190.425784230943]
+  end
 end
 
 @testset "Simulated term life model" begin
   model = LifelibBasiclife()
 
-  @test B.monthly_mortality_rate(model, Year(47), Month(0)) == B.monthly_mortality_rates(B.basic_mortality, 0)[1]
-  @test B.monthly_mortality_rate(model, Year(49), Month(24)) == B.monthly_mortality_rates(B.basic_mortality, 24)[1]
-  @test B.monthly_mortality_rate(model, Year(51), Month(49)) == B.monthly_mortality_rates(B.basic_mortality, 49)[1]
-  @test B.monthly_mortality_rate(model, Year(26), Month(49)) == B.monthly_mortality_rates(B.basic_mortality, 49)[end]
+  @test B.monthly_mortality_rate(model, Year(47), Month(0)) == B.monthly_mortality_rates(B.basic_mortality[], 0)[1]
+  @test B.monthly_mortality_rate(model, Year(49), Month(24)) == B.monthly_mortality_rates(B.basic_mortality[], 24)[1]
+  @test B.monthly_mortality_rate(model, Year(51), Month(49)) == B.monthly_mortality_rates(B.basic_mortality[], 49)[1]
+  @test B.monthly_mortality_rate(model, Year(26), Month(49)) == B.monthly_mortality_rates(B.basic_mortality[], 49)[end]
   @test B.annual_lapse_rate(model, Month(0)) == B.lapse_rate(0)
   @test B.annual_lapse_rate(model, Month(12)) == B.lapse_rate(12)
   @test B.monthly_lapse_rate(model, Month(0)) == (1 - (1 - B.lapse_rate(0))^(1/12))
