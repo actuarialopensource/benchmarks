@@ -97,12 +97,12 @@ end
     sim = Simulation(model, policies)
     @test length(sim.active_policies) == 1
     @test length(sim.inactive_policies) == 2
-    next!(sim)
+    next!(sim, SimulationEvents())
     @test length(sim.active_policies) == 2
     @test length(sim.inactive_policies) == 1
     n = sum(policy_count, sim.active_policies)
     @test 89 < n < 90
-    next!(sim)
+    next!(sim, SimulationEvents())
     n = sum(policy_count, sim.active_policies)
     @test 139 < n < 140
 
@@ -110,7 +110,7 @@ end
     sim = Simulation(model, policies)
     # All policies start at month 0, processed in the first simulation step.
     @test isempty(sim.active_policies)
-    next!(sim)
+    next!(sim, SimulationEvents())
     @test length(sim.active_policies) == 100_000
     n = sum(policy_count, sim.active_policies)
     @test n > 4_995_000

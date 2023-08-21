@@ -71,9 +71,11 @@ end
 function CashFlow(sim::Simulation{<:LifelibBasiclife}, n::Integer)
   cashflow = Ref(CashFlow())
   compute_premiums!(sim, n)
+  events = SimulationEvents()
   for i in 1:n
-    events = next!(sim; callback = sim -> (cashflow[] += CashFlow(sim)))
+    events = next!(sim, events; callback = sim -> (cashflow[] += CashFlow(sim)))
     cashflow[] += CashFlow(events, sim.model)
+    empty!(events)
   end
   cashflow[]
 end

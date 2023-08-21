@@ -34,7 +34,18 @@ mutable struct SimulationEvents
   const account_changes::Vector{Pair{PolicySet,AccountChanges}}
 end
 
-SimulationEvents(time::Month) = SimulationEvents(time, Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], 0.0, PolicySet[], 0.0, Pair{PolicySet,AccountChanges}[])
+SimulationEvents() = SimulationEvents(Month(0), Pair{PolicySet,Float64}[], Pair{PolicySet,Float64}[], PolicySet[], 0.0, PolicySet[], 0.0, Pair{PolicySet,AccountChanges}[])
+
+function Base.empty!(events::SimulationEvents)
+  empty!(events.lapses)
+  empty!(events.deaths)
+  empty!(events.expirations)
+  empty!(events.starts)
+  empty!(events.account_changes)
+  events.claimed = 0
+  events.expenses = 0
+  events
+end
 
 """
 Simulation parametrized by a particular [`Model`](@ref).
@@ -66,9 +77,11 @@ end
 simulate(f, model::Model, policies, n::Int) = simulate!(f, Simulation(model, policies), n)
 simulate!(sim::Simulation, n::Int) = simulate!(identity, sim, n)
 function simulate!(f, sim::Simulation, n::Int)
+  events = SimulationEvents()
   for i in 1:n
-    events = next!(sim)
+    next!(sim, events)
     f(events)
+    empty!(events)
   end
   sim
 end
@@ -84,9 +97,11 @@ end
 
 function simulate!(f, sim::Simulation{<:LifelibBasiclife}, n::Int)
   compute_premiums!(sim, n)
+  events = SimulationEvents()
   for i in 1:n
-    events = next!(sim)
+    events = next!(sim, events)
     f(events)
+    empty!(events)
   end
   sim
 end
@@ -145,8 +160,8 @@ Third, all account values are updated, with:
 
 Then, at the middle of the month, deaths and lapses occur. Finally, the simulation time is incremented.
 """
-function next!(sim::Simulation{<:LifelibSavings})
-  events = SimulationEvents(sim.time)
+function next!(sim::Simulation{<:LifelibSavings}, events::SimulationEvents)
+  events.time = sim.time
 
   remove_expired_policies!(events, sim)
   add_new_policies!(events, sim)
@@ -170,8 +185,8 @@ Then, at the middle of the month, deaths and lapses occur. Finally, the simulati
 A callback may be run just before the deaths and lapses occur, as the original `basiclife` model considers
 lapses and deaths to be part of the next iteration (i.e., deaths and lapses occur prior to the next step, and not in the current step).
 """
-function next!(sim::Simulation{<:LifelibBasiclife}; callback = identity)
-  events = SimulationEvents(sim.time)
+function next!(sim::Simulation{<:LifelibBasiclife}, events::SimulationEvents; callback = identity)
+  events.time = sim.time
 
   remove_expired_policies!(events, sim)
   add_new_policies!(events, sim)
