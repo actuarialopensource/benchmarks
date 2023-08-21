@@ -1,16 +1,16 @@
 basic_term_benchmark:
   Julia Benchmarks basic_term:
-    mean: "TrialEstimate(161.852 ms)"
+    mean: "TrialEstimate(223.289 ms)"
     result: "1.4489630534602132e7"
 mortality:
   Julia MortalityTables.jl:
-    mean: "TrialEstimate(497.473 μs)"
+    mean: "TrialEstimate(569.433 μs)"
     result: 1904.4865526636793
 savings_benchmark:
   Julia Benchmarks savings:
-    mean: "TrialEstimate(264.815 ms)"
-    result: 3.507113709040271e12
+    mean: "TrialEstimate(225.543 ms)"
+    result: 3.507113709040273e12
 exposures:
   Julia ExperienceAnalysis.jl:
     num_rows: 141281
-    mean: "TrialEstimate(52.133 ms)"
+    mean: "TrialEstimate(57.101 ms)"
