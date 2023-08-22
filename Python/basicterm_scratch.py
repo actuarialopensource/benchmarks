@@ -63,6 +63,8 @@ def pols_lapse(t: int):
     return (pols_if(t) - pols_death(t)) * (1 - (1 - lapse_rate(t))**(1/12))
 @cash
 def pols_maturity(t: int):
+    if t == 0:
+        return np.zeros(len(mp))
     return (t == 12 * mp["policy_term"]) * (pols_if(t - 1) - pols_lapse(t - 1) - pols_death(t - 1))
 
 @cash
