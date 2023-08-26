@@ -5,9 +5,12 @@ import numpy as np
 
 # constants
 max_proj_len = 12 * 20 + 1
+
 mp = pd.read_csv("BasicTerm_M/model_point_table.csv")
 disc_rate = pd.read_csv("BasicTerm_M/disc_rate_ann.csv")['zero_spot']
+mort_np = pd.read_csv("BasicTerm_M/mort_table.csv").drop(columns=["Age"]).to_numpy()
 sum_assured = mp["sum_assured"]
+issue_age = mp["age_at_entry"]
 
 # classes
 class Cash:
@@ -29,30 +32,22 @@ class Cash:
 
 cash = Cash()
 
-class Mortality:
-    def __init__(self, issue_age: pd.Series):
-        self.mort_np = pd.read_csv("BasicTerm_M/mort_table.csv").drop(columns=["Age"]).to_numpy()
-        self.issue_age = issue_age
-    @cash
-    def get_annual_rate(self, duration: int):
-        return self.mort_np[self.issue_age + duration - 18, min(duration, 5)]
-    @cash
-    def get_monthly_rate(self, duration: int):
-        return 1 - (1 - self.get_annual_rate(duration))**(1/12)
-
-mortality = Mortality(mp["age_at_entry"])
-
-# functions
+@cash
+def get_annual_rate(duration: int):
+    return mort_np[issue_age + duration - 18, min(duration, 5)]
+@cash
+def get_monthly_rate(duration: int):
+    return 1 - (1 - get_annual_rate(duration))**(1/12)
 @cash
 def duration(t: int):
     return t // 12
 @cash
 def pols_death(t: int):
-    return pols_if(t) * mortality.get_monthly_rate(duration(t))
+    return pols_if(t) * get_monthly_rate(duration(t))
 @cash
 def pols_if(t: int):
     if t == 0:
-        return np.ones(len(mp))
+        return 1
     return pols_if(t - 1) - pols_lapse(t - 1) - pols_death(t - 1) - pols_maturity(t)
 
 @cash
@@ -64,7 +59,7 @@ def pols_lapse(t: int):
 @cash
 def pols_maturity(t: int):
     if t == 0:
-        return np.zeros(len(mp))
+        return 0
     return (t == 12 * mp["policy_term"]) * (pols_if(t - 1) - pols_lapse(t - 1) - pols_death(t - 1))
 
 @cash
@@ -110,11 +105,11 @@ def expenses(t):
     return (t == 0) * expense_acq() * pols_if(t) \
            + pols_if(t) * expense_maint()/12 * inflation_factor(t)
 @cash
-def premium_pp(t: int):
+def premium_pp():
     return np.around((1 + loading_prem()) * net_premium_pp(), 2)
 @cash
 def premiums(t):
-    return premium_pp(100) * pols_if(t)
+    return premium_pp() * pols_if(t)
 @cash
 def pv_premiums():
     return sum(premiums(t) * discount(t) for t in range(max_proj_len))
@@ -164,7 +159,7 @@ def run_tests():
     assert all(claims(130)[:3] == [0, 28.82531005791726, 0])
     assert premiums(130)[1] == 39.565567796442494
     assert expenses(100)[1] == 3.703818110341339
-    assert premium_pp(100)[0] == 94.84
+    assert premium_pp()[0] == 94.84
     assert inflation_factor(100) == 1.0864542626396292
 
 if __name__ == "__main__":
