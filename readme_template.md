@@ -4,7 +4,7 @@ Benchmarks in this repository:
 
 * `basic_term_benchmark`: Replicate the cashflows of the [LifeLib BasicTerm model](https://github.com/lifelib-dev/lifelib/tree/main/lifelib/libraries/basiclife/BasicTerm_M)
     * Python [LifeLib BasicTerm_M](https://github.com/lifelib-dev/lifelib/tree/main/lifelib/libraries/basiclife/BasicTerm_M)
-    * Julia [using memoization](https://github.com/actuarialopensource/benchmarks/blob/main/Julia/src/Benchmarks.jl)
+    * Julia [using LifeSimulator](https://github.com/JuliaActuary/LifeSimulator.jl)
     * Python [using custom memoization decorator](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_scratch.py)
     * Python [using JAX](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_jax.py)
 * `exposures`: Create date partitions for experience studies
