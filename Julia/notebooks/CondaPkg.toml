@@ -1,0 +1,13 @@
+[deps]
+pandas = "1.5.3"
+jax = "0.4.8"
+jaxlib = "0.4.7"
+numpy = "1.24.2"
+jaxtyping = "0.2.15"
+pyyaml = "6.0"
+openpyxl = "3.1.2"
+modelx = "0.21.0"
+
+[pip.deps]
+lifelib = ""
+pymort = ""
