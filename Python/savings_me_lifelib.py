@@ -5,7 +5,7 @@ import pandas as pd
 from os.path import dirname, join
 
 m = mx.read_model("CashValue_ME_EX4")
-model_file = join(dirname(dirname(__file__)), "Julia", "src", "data", "savings", "model_point_table_10K.csv")
+model_file = join(dirname(__file__), "CashValue_ME_EX4", "model_point_table_10K.csv")
 m.Projection.model_point_table = pd.read_csv(model_file)
 m.Projection.scen_size = 1
 print(m.Projection.max_proj_len())

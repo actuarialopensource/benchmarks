@@ -1,24 +1,16 @@
 name = "Benchmarks"
-uuid = "73783465-395e-4165-b528-1c694332812b"
-authors = ["Matthew Caseres"]
-version = "0.1.0"
 
 [deps]
-Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DayCounts = "44e31299-2c53-5a9b-9141-82aa45d7972f"
 ExperienceAnalysis = "51cd30ab-a913-41ff-9b6f-9b78880a2ac2"
-Memoize = "c03570c3-d221-55d1-a50c-7939bbd78826"
+LifeSimulator = "73783465-395e-4165-b528-1c694332812b"
 MortalityTables = "4780e19d-04b9-53dc-86c2-9e9aa59b5a12"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-julia = "1.8"
+julia = "1.9"

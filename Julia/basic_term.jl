@@ -1,8 +1,8 @@
-import Benchmarks as B
+using LifeSimulator: empty_memoization_caches!, pv_net_cf
 
 function cf1()
-    B.empty_memoization_caches!()
-    sum(B.pv_net_cf())
+    empty_memoization_caches!()
+    sum(pv_net_cf())
 end
 
 function run_basic_term_benchmark()
