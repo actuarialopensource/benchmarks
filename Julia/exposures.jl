@@ -41,9 +41,7 @@ function run_exposure_benchmarks()
     return Dict(
         "Julia ExperienceAnalysis.jl" => Dict(
             "num_rows" => size(result_exp, 1),
-            "mean" => string(mean(b_exp)),
+            "minimum time" => string(minimum(b_exp)),
         )
     )
 end
-
-
