@@ -27,9 +27,9 @@ function mortality1(tbls = MortalityTables.table.(3299:3308))
 end
 
 function run_mortality_benchmarks()
-    tbls = MortalityTables.table.(3299:330)
+    tbls = MortalityTables.table.(3299:3308)
     mort1_result = mortality1(tbls)
-    b1 = @benchmark mortality1(tbls)
+    b1 = @benchmark mortality1($tbls)
     # (result, mean time, median time) named tuple
     return Dict(
         "Julia MortalityTables.jl" => Dict(
