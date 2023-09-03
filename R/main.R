@@ -26,13 +26,13 @@ results <- microbenchmark(
 create_benchmark_results_yaml <- function(results){
   summarised_results <- results %>%
     group_by(expr) %>%
-    summarise(avg_time_ms = mean(time)/1000000)
+    summarise(min_time_ms = min(time)/1000000)
   write_yaml(
     list(
         exposures = list(
           "R actxps" = list(
             num_rows = nrow(exposures),
-            mean = paste(summarised_results$avg_time_ms, "ms")
+            min = paste(summarised_results$min_time_ms, "ms")
           )
         )
     ),

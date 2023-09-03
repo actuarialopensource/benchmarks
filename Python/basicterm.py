@@ -1,3 +1,4 @@
+import numpy as np
 import modelx as mx
 import timeit
 from basicterm_m_lifelib import basicterm_m_lifelib
@@ -12,23 +13,23 @@ def basic_term_m_lifelib():
 
 def run_basic_term_benchmarks():
     trials = 20
-    modelx_time = timeit.timeit(stmt="basicterm_m_lifelib()", setup="from basicterm_m_lifelib import basicterm_m_lifelib", number=trials)
+    modelx_time = timeit.repeat(stmt="basicterm_m_lifelib()", setup="from basicterm_m_lifelib import basicterm_m_lifelib", number=1, repeat=trials)
     modelx_result = basicterm_m_lifelib()
-    scratch_time = timeit.timeit(stmt="basicterm_scratch()", setup="from basicterm_scratch import basicterm_scratch", number=trials)
+    scratch_time = timeit.repeat(stmt="basicterm_scratch()", setup="from basicterm_scratch import basicterm_scratch", number=1, repeat=trials)
     scratch_result = basicterm_scratch()
-    jax_time = timeit.timeit(stmt="basicterm_jax()", setup="from basicterm_jax import basicterm_jax", number=trials)
+    jax_time = timeit.repeat(stmt="basicterm_jax()", setup="from basicterm_jax import basicterm_jax", number=1, repeat=trials)
     jax_result = basicterm_jax()
     return {
         "Python lifelib basic_term_m": {
-            "mean": f"{(modelx_time / trials)*1000} milliseconds",
+            "minimum time": f"{np.min(modelx_time)*1000} milliseconds",
             "result": modelx_result,
         },
         "Python scratch basic_term_m": {
-            "mean": f"{(scratch_time / trials)*1000} milliseconds",
+            "minimum time": f"{np.min(scratch_time)*1000} milliseconds",
             "result": scratch_result,
         },
         "Python jax basic_term_m": {
-            "mean": f"{(jax_time / trials)*1000} milliseconds",
+            "minimum time": f"{np.min(jax_time)*1000} milliseconds",
             "result": jax_result,
         },
     }

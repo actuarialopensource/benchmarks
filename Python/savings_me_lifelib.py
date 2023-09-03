@@ -16,11 +16,11 @@ def savings_me_lifelib():
 
 def run_savings_benchmarks():
     trials = 20
-    modelx_time = timeit.timeit(stmt="savings_me_lifelib()", number=trials, globals = {"savings_me_lifelib": savings_me_lifelib})
+    modelx_time = timeit.repeat(stmt="savings_me_lifelib()", number=1, repeat=trials, globals = {"savings_me_lifelib": savings_me_lifelib})
     modelx_result = savings_me_lifelib()
     return {
         "Python lifelib cashvalue_me_ex4": {
-            "mean": f"{(modelx_time / trials)*1000} milliseconds",
+            "minimum time": f"{np.min(modelx_time)*1000} milliseconds",
             "result": modelx_result,
         }
     }

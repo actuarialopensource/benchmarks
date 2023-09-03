@@ -29,11 +29,10 @@ end
 function run_mortality_benchmarks()
     mort1_result = mortality1()
     b1 = @benchmark mortality1()
-    # (result, mean time, median time) named tuple
     return Dict(
         "Julia MortalityTables.jl" => Dict(
             "result" => mort1_result,
-            "mean" => string(mean(b1)),
+            "minimum time" => string(minimum(b1)),
         ),
     )
 end
