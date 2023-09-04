@@ -16,7 +16,7 @@ function run_savings_benchmark()
   savings = CashFlow(Simulation(model, policies), n).discounted
   Dict(
     "Julia Benchmarks savings" => Dict(
-      "mean" => string(mean(savings_benchmark)),
+      "minimum time" => string(minimum(savings_benchmark)),
       "result" => savings,
     )
   )

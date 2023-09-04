@@ -1,4 +1,4 @@
 exposures:
   R actxps:
     num_rows: 141281
-    mean: 813.731712 ms
+    min: 816.6683 ms

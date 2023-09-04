@@ -42,11 +42,11 @@ def run_mortality_benchmarks():
     select, ultimate = get_select(), get_ultimate()
     mort1_result = mortality1(select, ultimate)
     trials = 20
-    b1 = timeit.timeit(stmt="mortality1(select, ultimate)", setup="from mortality import mortality1", number=trials, globals = {"select": select, "ultimate": ultimate})
+    b1 = timeit.repeat(stmt="mortality1(select, ultimate)", setup="from mortality import mortality1", globals = {"select": select, "ultimate": ultimate}, number=1, repeat=trials)
     return {
         "Python PyMort": {
             "result": float(mort1_result),
-            "mean": f"{(b1 / trials)*1000} milliseconds",
+            "minimum time": f"{np.min(b1)*1000} milliseconds",
         }
     }
 
