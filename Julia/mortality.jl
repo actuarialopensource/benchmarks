@@ -14,7 +14,7 @@ using BenchmarkTools
     return result
 end
 
-function mortality1(tbls = [MortalityTables.table(i) for i = 3299:3308])
+function mortality1(tbls = MortalityTables.table.(3299:3308))
     issue_ages = 18:50
     durations = 1:25
     term = 29
@@ -27,8 +27,9 @@ function mortality1(tbls = [MortalityTables.table(i) for i = 3299:3308])
 end
 
 function run_mortality_benchmarks()
-    mort1_result = mortality1()
-    b1 = @benchmark mortality1()
+    tbls = MortalityTables.table.(3299:3308)
+    mort1_result = mortality1(tbls)
+    b1 = @benchmark mortality1($tbls)
     return Dict(
         "Julia MortalityTables.jl" => Dict(
             "result" => mort1_result,

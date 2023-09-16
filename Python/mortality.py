@@ -2,13 +2,17 @@ from pymort.XML import MortXML
 import numpy as np
 import timeit
 
-def mortality1():
-    select = np.array(
+def get_select():
+    return np.array(
         [MortXML(id).Tables[0].Values.unstack().values for id in range(3299, 3309)]
     )
-    ultimate = np.array(
+
+def get_ultimate():
+    return np.array(
         [MortXML(id).Tables[1].Values.unstack().values for id in range(3299, 3309)]
     )
+
+def mortality1(select = get_select(), ultimate = get_ultimate()):
     mortality_table_index = np.arange(10)
     duration = np.arange(25)
     issue_age = np.arange(18, 51)
@@ -35,9 +39,10 @@ def mortality1():
     return np.sum(unit_claims_discounted)
 
 def run_mortality_benchmarks():
-    mort1_result = mortality1()
+    select, ultimate = get_select(), get_ultimate()
+    mort1_result = mortality1(select, ultimate)
     trials = 20
-    b1 = timeit.repeat(stmt="mortality1()", setup="from mortality import mortality1", number=1, repeat=trials)
+    b1 = timeit.repeat(stmt="mortality1(select, ultimate)", setup="from mortality import mortality1", globals = {"select": select, "ultimate": ultimate}, number=1, repeat=trials)
     return {
         "Python PyMort": {
             "result": float(mort1_result),
