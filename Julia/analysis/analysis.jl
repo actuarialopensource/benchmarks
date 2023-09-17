@@ -12,6 +12,8 @@ language_used_memoized(::LifelibSavings) = "Python"
 include("../read_model.jl")
 !@isdefined(proj) && (proj = read_savings_model())
 
+# Store results into a dictionary to avoid having to recompute benchmark data every time.
+# Empty these dictionaries if you want to regenerate the results.
 const TIME_RESULTS = Dict{Model,NamedTuple}()
 const MEMORY_RESULTS = Dict{Model,NamedTuple}()
 const term_life_model = Ref(LifelibBasiclife())
