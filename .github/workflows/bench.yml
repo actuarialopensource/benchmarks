@@ -48,7 +48,7 @@ jobs:
         with:
           version: '1.10.0-beta3'
       - name: Benchmark
-        run: julia --project -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(); include("main.jl")'
+        run: julia --project -e 'using Pkg; Pkg.instantiate(); include("main.jl")'
       - run: ls
       - name: upload Julia benchmark
         uses: actions/upload-artifact@v3
