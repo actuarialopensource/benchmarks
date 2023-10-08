@@ -7,7 +7,7 @@ function generate_memory_complexity_data(model::Model)
   for (i, file) in enumerate(files)
     for (j, n) in enumerate(ts)
       policies = policies_from_csv(file)
-      allocations[i, j] = (@benchmark CashFlow(Simulation($model, $policies), $n)).memory / 1e6
+      allocations[i, j] = (@benchmark CashFlow($model, isa($model, $LifelibBasiclife) ? estimate_premiums($model, $policies, $n) : $policies, $n)).memory / 1e6
     end
   end
   MEMORY_RESULTS[model] = (; ts, files, sizes, allocations)

@@ -47,9 +47,8 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.9.1'
-      - run: julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
       - name: Benchmark
-        run: julia --project=@. main.jl
+        run: julia --project -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(); include("main.jl")'
       - run: ls
       - name: upload Julia benchmark
         uses: actions/upload-artifact@v3

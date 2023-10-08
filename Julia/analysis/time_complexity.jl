@@ -7,7 +7,8 @@ function generate_time_complexity_data(model::LifelibBasiclife)
   for file in files
     policies = policies_from_csv(file)
 
-    push!(iterative_timings, minimum(@benchmark CashFlow(Simulation($model, $policies), $(BasicTermMemoized.final_timestep[]))).time * 1e-9)
+    n = BasicTermMemoized.final_timestep[]
+    push!(iterative_timings, minimum(@benchmark CashFlow($model, estimate_premiums($model, $policies, $n), $n)).time * 1e-9)
 
     set_basic_term_policies!(policies)
     push!(memoized_timings, minimum(@benchmark begin

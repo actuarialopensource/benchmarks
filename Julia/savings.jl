@@ -10,10 +10,8 @@ function run_savings_benchmark()
   use_policies!(proj, policies)
   model = LifelibSavings(investment_rates = investment_rate(proj))
   n = ntimesteps(proj)
-  savings_benchmark = @benchmark CashFlow(sim, $n).discounted setup = begin
-    sim = Simulation($model, $policies)
-  end
-  savings = CashFlow(Simulation(model, policies), n).discounted
+  savings_benchmark = @benchmark CashFlow($model, $policies, $n).discounted
+  savings = CashFlow(model, policies, n).discounted
   Dict(
     "Julia Benchmarks savings" => Dict(
       "minimum time" => string(minimum(savings_benchmark)),

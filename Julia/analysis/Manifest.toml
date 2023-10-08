@@ -634,9 +634,9 @@ uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
 version = "1.0.0"
 
 [[deps.Inflate]]
-git-tree-sha1 = "5cd07aab533df5170988219191dfad0519391428"
+git-tree-sha1 = "ea8031dea4aff6bd41f1df8f2fdfb25b33626381"
 uuid = "d25df0c9-e2be-5dd7-82c8-3ad0b3e990b9"
-version = "0.1.3"
+version = "0.1.4"
 
 [[deps.InlineStrings]]
 deps = ["Parsers"]
@@ -845,8 +845,8 @@ uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.36.0+0"
 
 [[deps.LifeSimulator]]
-deps = ["Accessors", "CSV", "DataFrames", "Dates", "Memoize", "MortalityTables", "Random", "Reexport", "StructEquality", "Test"]
-git-tree-sha1 = "14fd098fa8acc4b6ecd85f08426ae7c8c16abbd3"
+deps = ["Accessors", "CSV", "DataFrames", "Dates", "Memoize", "MortalityTables", "Printf", "Random", "Reexport", "StructEquality", "Test"]
+git-tree-sha1 = "707294498797e3584bf625b8c53e1a1a01224d0d"
 repo-rev = "main"
 repo-url = "https://github.com/JuliaActuary/LifeSimulator.jl"
 uuid = "73783465-395e-4165-b528-1c694332812b"
@@ -1068,9 +1068,9 @@ version = "0.5.5+0"
 
 [[deps.Optim]]
 deps = ["Compat", "FillArrays", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "PositiveFactorizations", "Printf", "SparseArrays", "StatsBase"]
-git-tree-sha1 = "963b004d15216f8129f6c0f7d187efa136570be0"
+git-tree-sha1 = "01f85d9269b13fedc61e63cc72ee2213565f7a72"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "1.7.7"
+version = "1.7.8"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1292,9 +1292,9 @@ version = "1.2.2"
 
 [[deps.RelocatableFolders]]
 deps = ["SHA", "Scratch"]
-git-tree-sha1 = "90bc7a7c96410424509e4263e277e43250c05691"
+git-tree-sha1 = "ffdaf70d81cf6ff22c2b6e733c900c3321cab864"
 uuid = "05181044-ff0b-4ac5-8273-598c1e38db00"
-version = "1.0.0"
+version = "1.0.1"
 
 [[deps.Requires]]
 deps = ["UUIDs"]

@@ -16,17 +16,17 @@ include("../read_model.jl")
 # Empty these dictionaries if you want to regenerate the results.
 const TIME_RESULTS = Dict{Model,NamedTuple}()
 const MEMORY_RESULTS = Dict{Model,NamedTuple}()
-const term_life_model = Ref(LifelibBasiclife())
+const term_life_model = Ref(LifelibBasiclife(commission_rate = 1.0))
 const universal_life_model = Ref(LifelibSavings())
 
 include("time_complexity.jl")
 include("memory_complexity.jl")
 
 policies = rand(PolicySet, 10_000_000)
-CashFlow(Simulation(universal_life_model[], rand(PolicySet, 1_000)), 5) # JIT compilation
-# @with SHOW_PROGRESS => true @time CashFlow(Simulation(universal_life_model[], policies), 150)
+CashFlow(universal_life_model[], rand(PolicySet, 1_000), 5) # JIT compilation
+# @with SHOW_PROGRESS => true @time CashFlow(universal_life_model[], policies, 150)
 open(joinpath(@__DIR__, "large_run.txt"), "w+") do io
-  ex = :(CashFlow(Simulation(universal_life_model[], policies), 150))
+  ex = :(CashFlow(universal_life_model[], policies, 150))
   println(io, "julia> ", ex)
   redirect_stdout(io) do
     @eval @time $ex
