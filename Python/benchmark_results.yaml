@@ -1,18 +1,18 @@
 basic_term_benchmark:
   Python jax basic_term_m:
-    minimum time: 265.5626750000124 milliseconds
+    minimum time: 228.7566159999983 milliseconds
     result: 14489630.53460337
   Python lifelib basic_term_m:
-    minimum time: 1164.9177590000193 milliseconds
+    minimum time: 1100.0678590000064 milliseconds
     result: 14489630.534601536
   Python scratch basic_term_m:
-    minimum time: 922.7593709999837 milliseconds
+    minimum time: 879.293218000015 milliseconds
     result: 14489630.534603368
 mortality:
   Python PyMort:
-    minimum time: 12.375458000008166 milliseconds
+    minimum time: 10.692509999984168 milliseconds
     result: 1904.4865526636793
 savings_benchmark:
   Python lifelib cashvalue_me_ex4:
-    minimum time: 1185.4091040000014 milliseconds
+    minimum time: 1096.2788960000012 milliseconds
     result: 3507113709040.141
