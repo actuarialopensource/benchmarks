@@ -88,7 +88,7 @@ julia> policies = rand(PolicySet, 10_000_000);
 julia> model = LifelibSavings();
 
 julia> @time CashFlow(model, policies, 150);
-103.615767 seconds (84 allocations: 8.473 GiB, 0.01% gc time)
+ 92.053248 seconds (84 allocations: 8.473 GiB, 0.05% gc time)
 ```
 
 ### Memory complexity

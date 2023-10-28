@@ -22,6 +22,7 @@ const universal_life_model = Ref(LifelibSavings())
 include("time_complexity.jl")
 include("memory_complexity.jl")
 
+@info "Running simulation with 10,000,000 model points"
 policies = rand(PolicySet, 10_000_000)
 CashFlow(universal_life_model[], rand(PolicySet, 1_000), 5) # JIT compilation
 # @with SHOW_PROGRESS => true @time CashFlow(universal_life_model[], policies, 150)
