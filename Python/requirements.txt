@@ -7,3 +7,4 @@ numpy==1.24.2
 jax==0.4.8
 jaxlib==0.4.7
 jaxtyping==0.2.15
+torch==2.2.0
