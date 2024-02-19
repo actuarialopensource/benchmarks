@@ -109,6 +109,7 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements.txt
       - run: python generate_readme.py
+      - run: cat README.md
       # commit and push the README.md
       - name: Commit and push
         run: |
