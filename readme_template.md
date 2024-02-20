@@ -5,8 +5,8 @@ Benchmarks in this repository:
 * `basic_term_benchmark`: Replicate the cashflows of the [LifeLib BasicTerm model](https://github.com/lifelib-dev/lifelib/tree/main/lifelib/libraries/basiclife/BasicTerm_M)
     * Python [LifeLib BasicTerm_M](https://github.com/lifelib-dev/lifelib/tree/main/lifelib/libraries/basiclife/BasicTerm_M)
     * Julia [using LifeSimulator](https://github.com/JuliaActuary/LifeSimulator.jl)
-    * Python [using recursive formulas on PyTorch arrays](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_recursive_pytorch.py)
-    * Python [using matrix operations (no recursion) on PyTorch arrays](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_array_pytorch.py)
+    * Python using recursive formulas with [PyTorch](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_recursive_pytorch.py) and [NumPy](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_recursive_numpy.py)
+    * Python using matrix operations (no recursion) on [PyTorch arrays](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_array_pytorch.py) and [NumPy arrays](https://github.com/actuarialopensource/benchmarks/blob/main/Python/basicterm_array_numpy.py)
 * `exposures`: Create date partitions for experience studies
     * Julia [ExperienceAnalysis](https://github.com/JuliaActuary/ExperienceAnalysis.jl)
     * R [actxps](https://github.com/mattheaphy/actxps)
