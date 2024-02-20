@@ -3,7 +3,7 @@
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/r-apt:0": {},
 		"ghcr.io/julialang/devcontainer-features/julia:1": {
-			"channel": "1.8.5"
+			"channel": "1.9.3"
 		},
 		"ghcr.io/dhoeric/features/act:1": {},
 		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {}
