@@ -1,6 +1,6 @@
 from mortality import run_mortality_benchmarks
 from basicterm import run_basic_term_benchmarks
-from savings_me_lifelib import run_savings_benchmarks
+from savings_me import run_savings_benchmarks
 import yaml
 
 
