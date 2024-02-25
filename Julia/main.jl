@@ -1,9 +1,13 @@
+using Pkg
+Pkg.add(url="https://github.com/JuliaActuary/LifeSimulator.jl")
+
 include("mortality.jl")
 include("exposures.jl")
 include("basic_term.jl")
 include("basic_term_array.jl")
 include("savings.jl")
 import YAML
+
 
 function run_benchmarks()
     return Dict(
