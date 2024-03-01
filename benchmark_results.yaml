@@ -1,0 +1,17 @@
+basic_term_benchmark:
+  Julia Benchmarks basic_term:
+    minimum time: "TrialEstimate(48.827 ms)"
+    result: "1.4489630534602132e7"
+mortality:
+  Julia MortalityTables.jl:
+    minimum time: "TrialEstimate(140.625 μs)"
+    result: 1904.4865526636793
+savings_benchmark:
+  Julia Benchmarks savings:
+    minimum time: "TrialEstimate(83.136 ms)"
+    result: 3.50711370904027e12
+exposures:
+  Julia ExperienceAnalysis.jl:
+    num_rows: 141281
+    minimum time: "TrialEstimate(18.133 ms)"
+basic_term_benchmark_array: 1.4489630534602132e7
