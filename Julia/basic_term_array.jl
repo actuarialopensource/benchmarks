@@ -66,7 +66,7 @@ function run_basicterm_array_benchmark()
     age_at_entry = mp.age_at_entry
     mort = CSV.read(data_file("mort_table.csv"), Tables.matrix; drop=[1])
 
-    result = return project(
+    result = project(
         max_proj_len,
         disc_rate,
         sum_assured,
