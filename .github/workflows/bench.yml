@@ -38,6 +38,7 @@ jobs:
           name: R_benchmark
           path: R/benchmark_results.yaml
   bench-Julia:
+    needs: bench-R
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,6 +57,7 @@ jobs:
           name: Julia_benchmark
           path: Julia/benchmark_results.yaml
   bench-Python:
+    needs: [bench-R, bench-Julia]
     runs-on: ubuntu-latest
     defaults:
       run:
