@@ -4,3 +4,4 @@
 /.vscode
 .CondaPkg
 *.code-workspace
+Manifest.toml
