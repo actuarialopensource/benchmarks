@@ -38,7 +38,6 @@ jobs:
           name: R_benchmark
           path: R/benchmark_results.yaml
   bench-Julia:
-    needs: bench-R
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -49,7 +48,7 @@ jobs:
         with:
           version: '1.9.3'
       - name: Benchmark
-        run: julia --threads=auto --project -e 'using Pkg; Pkg.instantiate(); include("main.jl")'
+        run: julia --project -e 'using Pkg; Pkg.instantiate(); include("main.jl")'
       - run: ls
       - name: upload Julia benchmark
         uses: actions/upload-artifact@v3
@@ -57,7 +56,6 @@ jobs:
           name: Julia_benchmark
           path: Julia/benchmark_results.yaml
   bench-Python:
-    needs: [bench-R, bench-Julia]
     runs-on: ubuntu-latest
     defaults:
       run:
