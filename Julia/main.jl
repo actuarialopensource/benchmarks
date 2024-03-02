@@ -13,8 +13,10 @@ function run_benchmarks()
     return Dict(
         "mortality" => run_mortality_benchmarks(),
         "exposures" => run_exposure_benchmarks(),
-        "basic_term_benchmark" => run_basic_term_benchmark(),
-        "basic_term_benchmark_array" => run_basicterm_array_benchmark(),
+        "basic_term_benchmark" => Dict(
+            "basic_term" => run_basic_term_benchmark(),
+            "basic_term_array" => run_basicterm_array_benchmark(),
+        ),
         "savings_benchmark" => run_savings_benchmark(),
     )
 end
