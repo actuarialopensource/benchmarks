@@ -30,27 +30,32 @@ premium_table = pd.read_excel("BasicTerm_ME/premium_table.xlsx", index_col=[0,1]
 class ModelPoints:
     def __init__(self, model_point_table: pd.DataFrame, premium_table: pd.DataFrame):
         self.table = model_point_table.merge(premium_table, left_on=["age_at_entry", "policy_term"], right_index=True)
+        self.table.sort_values(by="policy_id", inplace=True)
         self.table["premium_pp"] = np.around(self.table["sum_assured"] * self.table["premium_rate"],2)
+        self.premium_pp = self.table["premium_pp"].values
+        self.duration_mth = self.table["duration_mth"].values
+        self.age_at_entry = self.table["age_at_entry"].values
+        self.sum_assured = self.table["sum_assured"].values
+        self.policy_count = self.table["policy_count"].values
 
 class Assumptions:
     def __init__(self, disc_rate_ann: pd.DataFrame, mort_table: pd.DataFrame):
         self.disc_rate_ann = disc_rate_ann["zero_spot"].values
-        self.mort_table = mort_table
+        self.mort_table = mort_table.to_numpy()
+
+    def get_mortality(self, age, duration):
+        return self.mort_table[age-18, np.minimum(duration, 5)]
 
 mp = ModelPoints(model_point_table, premium_table)
 assume = Assumptions(disc_rate_ann, mort_table)
 
 @cash
 def age(t):
-    return age_at_entry() + duration(t)
-
-@cash
-def age_at_entry():
-    return model_point()["age_at_entry"]
+    return mp.age_at_entry + duration(t)
 
 @cash
 def claim_pp(t):
-    return sum_assured()
+    return mp.sum_assured
 
 @cash
 def claims(t):
@@ -79,7 +84,7 @@ def duration(t):
 @cash
 def duration_mth(t):
     if t == 0:
-        return model_point()['duration_mth']
+        return mp.duration_mth
     else:
         return duration_mth(t-1) + 1
 
@@ -122,23 +127,11 @@ def model_point():
 
 @cash
 def mort_rate(t):
-    mi = pd.MultiIndex.from_arrays([age(t), np.minimum(duration(t), 5)])
-    return mort_table_reindexed().reindex(
-        mi, fill_value=0).set_axis(model_point().index)
+    return assume.get_mortality(age(t), duration(t))
 
 @cash
 def mort_rate_mth(t):
     return 1-(1- mort_rate(t))**(1/12)
-
-@cash
-def mort_table_reindexed():
-    result = []
-    for col in mort_table.columns:
-        df = mort_table[[col]]
-        df = df.assign(Duration=int(col)).set_index('Duration', append=True)[col]
-        result.append(df)
-
-    return pd.concat(result)
 
 @cash
 def net_cf(t):
@@ -172,7 +165,7 @@ def pols_if_at(t, timing):
 
 @cash
 def pols_if_init():
-    return mp.table["policy_count"].where(duration_mth(0) > 0, other=0)
+    return np.where(duration_mth(0) > 0, mp.policy_count, 0)
 
 @cash
 def pols_lapse(t):
@@ -184,11 +177,11 @@ def pols_maturity(t):
 
 @cash
 def pols_new_biz(t):
-    return mp.table['policy_count'].where(duration_mth(t) == 0, other=0)
+    return np.where(duration_mth(t) == 0, mp.policy_count, 0)
 
 @cash
 def premiums(t):
-    return mp.table["premium_pp"] * pols_if_at(t, "BEF_DECR")
+    return mp.premium_pp * pols_if_at(t, "BEF_DECR")
 
 @cash
 def proj_len():
@@ -246,25 +239,6 @@ def result_pols():
 
     return pd.DataFrame(data, index=t_len)
 
-@cash
-def result_pv():
-    data = {
-        "PV Premiums": pv_premiums(),
-        "PV Claims": pv_claims(),
-        "PV Expenses": pv_expenses(),
-        "PV Commissions": pv_commissions(),
-        "PV Net Cashflow": pv_net_cf()
-    }
-
-    return pd.DataFrame(data, index=model_point().index)
-
-@cash
-def sex():
-    return model_point()["sex"]
-
-@cash
-def sum_assured():
-    return model_point()["sum_assured"]
 
 def basicterm_me_recursive_numpy():
     cash.reset()
