@@ -1,30 +1,24 @@
 import numpy as np
-import modelx as mx
 import timeit
 from basicterm_m_lifelib import basicterm_m_lifelib
-from basicterm_recursive_pytorch import basicterm_recursive_pytorch
-from basicterm_recursive_numpy import basicterm_recursive_numpy
-from basicterm_array_pytorch import basicterm_array_pytorch
-from basicterm_array_numpy import basicterm_array_numpy
+from basicterm_m_recursive_pytorch import basicterm_recursive_pytorch
+from basicterm_m_recursive_numpy import basicterm_recursive_numpy
+from basicterm_m_array_pytorch import basicterm_array_pytorch
+from basicterm_m_array_numpy import basicterm_array_numpy
 from pprint import pprint
 
-m = mx.read_model("BasicTerm_M")
-
-def basic_term_m_lifelib():
-    m.Projection.clear_cache = 1
-    return m.Projection.result_cf()
 
 def run_basic_term_benchmarks():
     trials = 20
     modelx_time = timeit.repeat(stmt="basicterm_m_lifelib()", setup="from basicterm_m_lifelib import basicterm_m_lifelib", number=1, repeat=trials)
     modelx_result = basicterm_m_lifelib()
-    recursive_pytorch_time = timeit.repeat(stmt="basicterm_recursive_pytorch()", setup="from basicterm_recursive_pytorch import basicterm_recursive_pytorch", number=1, repeat=trials)
+    recursive_pytorch_time = timeit.repeat(stmt="basicterm_recursive_pytorch()", setup="from basicterm_m_recursive_pytorch import basicterm_recursive_pytorch", number=1, repeat=trials)
     recursive_pytorch_result = basicterm_recursive_pytorch()
-    recursive_numpy_time = timeit.repeat(stmt="basicterm_recursive_numpy()", setup="from basicterm_recursive_numpy import basicterm_recursive_numpy", number=1, repeat=trials)
+    recursive_numpy_time = timeit.repeat(stmt="basicterm_recursive_numpy()", setup="from basicterm_m_recursive_numpy import basicterm_recursive_numpy", number=1, repeat=trials)
     recursive_numpy_result = basicterm_recursive_numpy()
-    array_pytorch_time = timeit.repeat(stmt="basicterm_array_pytorch()", setup="from basicterm_array_pytorch import basicterm_array_pytorch", number=1, repeat=trials)
+    array_pytorch_time = timeit.repeat(stmt="basicterm_array_pytorch()", setup="from basicterm_m_array_pytorch import basicterm_array_pytorch", number=1, repeat=trials)
     array_pytorch_result = basicterm_array_pytorch()
-    array_numpy_time = timeit.repeat(stmt="basicterm_array_numpy()", setup="from basicterm_array_numpy import basicterm_array_numpy", number=1, repeat=trials)
+    array_numpy_time = timeit.repeat(stmt="basicterm_array_numpy()", setup="from basicterm_m_array_numpy import basicterm_array_numpy", number=1, repeat=trials)
     array_numpy_result = basicterm_array_numpy()
     return {
         "Python lifelib basic_term_m": {
