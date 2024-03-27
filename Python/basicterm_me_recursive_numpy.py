@@ -37,6 +37,7 @@ class ModelPoints:
         self.age_at_entry = self.table["age_at_entry"].values
         self.sum_assured = self.table["sum_assured"].values
         self.policy_count = self.table["policy_count"].values
+        self.policy_term = self.table["policy_term"].values
 
 class Assumptions:
     def __init__(self, disc_rate_ann: pd.DataFrame, mort_table: pd.DataFrame):
@@ -138,10 +139,6 @@ def net_cf(t):
     return premiums(t) - claims(t) - expenses(t) - commissions(t)
 
 @cash
-def policy_term():
-    return model_point()["policy_term"]
-
-@cash
 def pols_death(t):
     return pols_if_at(t, "BEF_DECR") * mort_rate_mth(t)
 
@@ -173,7 +170,7 @@ def pols_lapse(t):
 
 @cash
 def pols_maturity(t):
-    return (duration_mth(t) == policy_term() * 12) * pols_if_at(t, "BEF_MAT")
+    return (duration_mth(t) == mp.policy_term * 12) * pols_if_at(t, "BEF_MAT")
 
 @cash
 def pols_new_biz(t):
@@ -185,7 +182,7 @@ def premiums(t):
 
 @cash
 def proj_len():
-    return np.maximum(12 * policy_term() - duration_mth(0) + 1, 0)
+    return np.maximum(12 * mp.policy_term - duration_mth(0) + 1, 0)
 
 @cash
 def pv_claims():
