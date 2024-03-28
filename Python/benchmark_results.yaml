@@ -1,31 +1,34 @@
 basic_term_benchmark:
   Python array numpy basic_term_m:
-    minimum time: 79.21352699997897 milliseconds
+    minimum time: 79.0311409999731 milliseconds
     result: 14489630.534603368
   Python array pytorch basic_term_m:
-    minimum time: 45.90245800000048 milliseconds
+    minimum time: 45.24396900001193 milliseconds
     result: 14489630.534603368
   Python lifelib basic_term_m:
-    minimum time: 611.5256439999825 milliseconds
+    minimum time: 614.4032699999684 milliseconds
     result: 14489630.534601536
   Python recursive numpy basic_term_m:
-    minimum time: 61.0325960000182 milliseconds
+    minimum time: 46.281483000029766 milliseconds
     result: 14489630.534603368
   Python recursive pytorch basic_term_m:
-    minimum time: 73.0835350000234 milliseconds
+    minimum time: 72.29064599999901 milliseconds
     result: 14489630.53460337
 basic_term_me_benchmark:
+  Python heavylight numpy basic_term_me:
+    minimum time: 343.96580999998605 milliseconds
+    result: 215146132.0684811
   Python lifelib basic_term_me:
-    minimum time: 1150.6744129999902 milliseconds
+    minimum time: 1146.6455289999544 milliseconds
     result: 215146132.06848112
   Python recursive numpy basic_term_me:
-    minimum time: 710.0158549999946 milliseconds
+    minimum time: 320.24258900003133 milliseconds
     result: 215146132.0684814
 mortality:
   Python PyMort:
-    minimum time: 8.98992999998427 milliseconds
+    minimum time: 9.000889000020607 milliseconds
     result: 1904.4865526636793
 savings_benchmark:
   Python lifelib cashvalue_me_ex4:
-    minimum time: 593.1804790000115 milliseconds
+    minimum time: 585.2152809999893 milliseconds
     result: 3507113709040.141
