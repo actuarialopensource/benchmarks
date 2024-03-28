@@ -32,11 +32,12 @@ class ModelPoints:
         self.table = model_point_table.merge(premium_table, left_on=["age_at_entry", "policy_term"], right_index=True)
         self.table.sort_values(by="policy_id", inplace=True)
         self.table["premium_pp"] = np.around(self.table["sum_assured"] * self.table["premium_rate"],2)
-        self.premium_pp = self.table["premium_pp"].values
-        self.duration_mth = self.table["duration_mth"].values
-        self.age_at_entry = self.table["age_at_entry"].values
-        self.sum_assured = self.table["sum_assured"].values
-        self.policy_count = self.table["policy_count"].values
+        self.premium_pp = self.table["premium_pp"].to_numpy()
+        self.duration_mth = self.table["duration_mth"].to_numpy()
+        self.age_at_entry = self.table["age_at_entry"].to_numpy()
+        self.sum_assured = self.table["sum_assured"].to_numpy()
+        self.policy_count = self.table["policy_count"].to_numpy()
+        self.policy_term = self.table["policy_term"].to_numpy()
 
 class Assumptions:
     def __init__(self, disc_rate_ann: pd.DataFrame, mort_table: pd.DataFrame):
@@ -122,10 +123,6 @@ def max_proj_len():
     return max(proj_len())
 
 @cash
-def model_point():
-    return model_point_table
-
-@cash
 def mort_rate(t):
     return assume.get_mortality(age(t), duration(t))
 
@@ -136,10 +133,6 @@ def mort_rate_mth(t):
 @cash
 def net_cf(t):
     return premiums(t) - claims(t) - expenses(t) - commissions(t)
-
-@cash
-def policy_term():
-    return model_point()["policy_term"]
 
 @cash
 def pols_death(t):
@@ -173,7 +166,7 @@ def pols_lapse(t):
 
 @cash
 def pols_maturity(t):
-    return (duration_mth(t) == policy_term() * 12) * pols_if_at(t, "BEF_MAT")
+    return (duration_mth(t) == mp.policy_term * 12) * pols_if_at(t, "BEF_MAT")
 
 @cash
 def pols_new_biz(t):
@@ -185,7 +178,7 @@ def premiums(t):
 
 @cash
 def proj_len():
-    return np.maximum(12 * policy_term() - duration_mth(0) + 1, 0)
+    return np.maximum(12 * mp.policy_term - duration_mth(0) + 1, 0)
 
 @cash
 def pv_claims():
