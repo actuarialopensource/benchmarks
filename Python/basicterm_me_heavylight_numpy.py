@@ -139,7 +139,7 @@ def basicterm_me_heavylight_numpy():
     model.ResetCache()
     tot = sum(np.sum(model.premiums(t) - model.claims(t) - model.expenses(t) - model.commissions(t)) \
               * model.discount(t) for t in range(model.mp.max_proj_len))
-    return tot
+    return float(tot)
 
 if __name__ == "__main__":
      print(basicterm_me_heavylight_numpy())
