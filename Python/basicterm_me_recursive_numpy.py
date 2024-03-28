@@ -32,12 +32,12 @@ class ModelPoints:
         self.table = model_point_table.merge(premium_table, left_on=["age_at_entry", "policy_term"], right_index=True)
         self.table.sort_values(by="policy_id", inplace=True)
         self.table["premium_pp"] = np.around(self.table["sum_assured"] * self.table["premium_rate"],2)
-        self.premium_pp = self.table["premium_pp"].values
-        self.duration_mth = self.table["duration_mth"].values
-        self.age_at_entry = self.table["age_at_entry"].values
-        self.sum_assured = self.table["sum_assured"].values
-        self.policy_count = self.table["policy_count"].values
-        self.policy_term = self.table["policy_term"].values
+        self.premium_pp = self.table["premium_pp"].to_numpy()
+        self.duration_mth = self.table["duration_mth"].to_numpy()
+        self.age_at_entry = self.table["age_at_entry"].to_numpy()
+        self.sum_assured = self.table["sum_assured"].to_numpy()
+        self.policy_count = self.table["policy_count"].to_numpy()
+        self.policy_term = self.table["policy_term"].to_numpy()
 
 class Assumptions:
     def __init__(self, disc_rate_ann: pd.DataFrame, mort_table: pd.DataFrame):
@@ -121,10 +121,6 @@ def loading_prem():
 @cash
 def max_proj_len():
     return max(proj_len())
-
-@cash
-def model_point():
-    return model_point_table
 
 @cash
 def mort_rate(t):

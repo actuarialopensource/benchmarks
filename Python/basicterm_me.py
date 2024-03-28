@@ -2,6 +2,7 @@ import numpy as np
 import timeit
 from basicterm_me_lifelib import basicterm_me_lifelib
 from basicterm_me_recursive_numpy import basicterm_me_recursive_numpy
+from basicterm_me_heavylight_numpy import basicterm_me_heavylight_numpy
 from pprint import pprint
 
 
@@ -11,6 +12,8 @@ def run_basic_term_me_benchmarks():
     modelx_result = basicterm_me_lifelib()
     recursive_numpy_time = timeit.repeat(stmt="basicterm_me_recursive_numpy()", setup="from basicterm_me_recursive_numpy import basicterm_me_recursive_numpy", number=1, repeat=trials)
     recursive_numpy_result = basicterm_me_recursive_numpy()
+    heavylight_time = timeit.repeat(stmt="basicterm_me_heavylight_numpy()", setup="from basicterm_me_heavylight_numpy import basicterm_me_heavylight_numpy", number=1, repeat=trials)
+    heavylight_result = basicterm_me_heavylight_numpy()
     return {
         "Python lifelib basic_term_me": {
             "minimum time": f"{np.min(modelx_time)*1000} milliseconds",
@@ -19,6 +22,10 @@ def run_basic_term_me_benchmarks():
         "Python recursive numpy basic_term_me": {
             "minimum time": f"{np.min(recursive_numpy_time)*1000} milliseconds",
             "result": recursive_numpy_result,
+        },
+        "Python heavylight numpy basic_term_me": {
+            "minimum time": f"{np.min(heavylight_time)*1000} milliseconds",
+            "result": heavylight_result,
         }
     }
 
