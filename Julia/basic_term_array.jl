@@ -93,9 +93,7 @@ function run_basicterm_array_benchmark()
     )
 
     return Dict(
-        "Julia basic term array" => Dict(
             "result" => result,
             "minimum time" => string(minimum(b1)),
-        ),
-    )
+        )
 end
