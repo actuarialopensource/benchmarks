@@ -13,7 +13,7 @@ function run_benchmarks()
     return Dict(
         "mortality" => run_mortality_benchmarks(),
         "exposures" => run_exposure_benchmarks(),
-        "basic_term" => Dict(
+        "basic_term_benchmark" => Dict(
             "Julia recursive basic_term" => run_basic_term_benchmark(),
             "Julia array basic_term" => run_basicterm_array_benchmark(),
         ),
