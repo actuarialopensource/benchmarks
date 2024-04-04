@@ -10,21 +10,21 @@ model_point_table = pd.read_excel("BasicTerm_ME/model_point_table.xlsx", index_c
 premium_table = pd.read_excel("BasicTerm_ME/premium_table.xlsx", index_col=[0,1])
 
 class ModelPoints:
-    def __init__(self, model_point_table: pd.DataFrame, premium_table: pd.DataFrame):
+    def __init__(self, model_point_table: pd.DataFrame, premium_table: pd.DataFrame, size_multiplier: int = 1):
         self.table = model_point_table.merge(premium_table, left_on=["age_at_entry", "policy_term"], right_index=True)
         self.table.sort_values(by="policy_id", inplace=True)
         self.table["premium_pp"] = np.around(self.table["sum_assured"] * self.table["premium_rate"],2)
-        self.premium_pp = self.table["premium_pp"].to_numpy()
-        self.duration_mth = self.table["duration_mth"].to_numpy()
-        self.age_at_entry = self.table["age_at_entry"].to_numpy()
-        self.sum_assured = self.table["sum_assured"].to_numpy()
-        self.policy_count = self.table["policy_count"].to_numpy()
-        self.policy_term = self.table["policy_term"].to_numpy()
+        self.premium_pp = np.tile(self.table["premium_pp"].to_numpy(), size_multiplier)
+        self.duration_mth = np.tile(self.table["duration_mth"].to_numpy(), size_multiplier)
+        self.age_at_entry = np.tile(self.table["age_at_entry"].to_numpy(), size_multiplier)
+        self.sum_assured = np.tile(self.table["sum_assured"].to_numpy(), size_multiplier)
+        self.policy_count = np.tile(self.table["policy_count"].to_numpy(), size_multiplier)
+        self.policy_term = np.tile(self.table["policy_term"].to_numpy(), size_multiplier)
         self.max_proj_len: int = np.max(12 * self.policy_term - self.duration_mth) + 1
 
 class Assumptions:
     def __init__(self, disc_rate_ann: pd.DataFrame, mort_table: pd.DataFrame):
-        self.disc_rate_ann = disc_rate_ann["zero_spot"].values
+        self.disc_rate_ann = disc_rate_ann["zero_spot"].to_numpy()
         self.mort_table = mort_table.to_numpy()
 
     def get_mortality(self, age, duration):
@@ -32,7 +32,7 @@ class Assumptions:
 
 class TermME(LightModel):
     def __init__(self, mp: ModelPoints, assume: Assumptions):
-        super().__init__()
+        super().__init__(storage_function=lambda x: np.sum(x))
         self.mp = mp
         self.assume = assume
 
@@ -97,6 +97,14 @@ class TermME(LightModel):
     def net_cf(self, t):
         return self.premiums(t) - self.claims(t) - self.expenses(t) - self.commissions(t)
     
+    def aggregated_discounted_net_cf(self, t):
+        return np.sum(self.net_cf(t)) * self.discount(t)
+    
+    def accumulated_discounted_net_cf(self, t):
+        if t < 0:
+            return 0
+        return self.accumulated_discounted_net_cf(t-1) + self.aggregated_discounted_net_cf(t)
+    
     def pols_death(self, t):
         return self.pols_if_at(t, "BEF_DECR") * self.mort_rate_mth(t)
     
@@ -137,8 +145,7 @@ model = TermME(mp, assume)
 
 def basicterm_me_heavylight_numpy():
     model.ResetCache()
-    tot = sum(np.sum(model.premiums(t) - model.claims(t) - model.expenses(t) - model.commissions(t)) \
-              * model.discount(t) for t in range(model.mp.max_proj_len))
+    tot = sum(np.sum(model.net_cf(t)) * model.discount(t) for t in range(model.mp.max_proj_len))
     return float(tot)
 
 if __name__ == "__main__":

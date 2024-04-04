@@ -80,7 +80,7 @@ def disc_rate_mth():
 
 @cash
 def duration(t):
-    return duration_mth(t) //12
+    return duration_mth(t) // 12
 
 @cash
 def duration_mth(t):
