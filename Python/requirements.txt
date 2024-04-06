@@ -6,4 +6,4 @@ pandas==1.5.3
 numpy==1.24.2
 torch==2.2.0
 scipy==1.12.0
-heavylight==1.0.5
+heavylight==1.0.6
