@@ -2,7 +2,11 @@ name: bench
 on:
   workflow_dispatch:
   push:
+    paths-ignore:
+      - 'containers/**'
   pull_request:
+    paths-ignore:
+      - 'containers/**'
 jobs:
   bench-R:
     runs-on: ubuntu-latest
