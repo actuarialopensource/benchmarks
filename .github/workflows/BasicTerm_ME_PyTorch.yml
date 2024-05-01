@@ -8,6 +8,8 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Delete huge unnecessary tools folder # https://github.com/orgs/community/discussions/25678
+        run: rm -rf /opt/hostedtoolcache
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
