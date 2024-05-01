@@ -4,9 +4,11 @@ on:
   push:
     paths-ignore:
       - 'containers/**'
-  pull_request:
-    paths-ignore:
-      - 'containers/**'
+      - '.github/workflows/containers/**'
+    pull_request:
+      paths-ignore:
+        - 'containers/**'
+        - '.github/workflows/containers/**'
 jobs:
   bench-R:
     runs-on: ubuntu-latest
