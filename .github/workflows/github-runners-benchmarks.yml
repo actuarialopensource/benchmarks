@@ -1,14 +1,12 @@
-name: bench
+name: github-runners-benchmarks
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - 'containers/**'
-      - '.github/workflows/containers/**'
+    paths:
+      - 'github-runners-benchmarks/**'
   pull_request:
-    paths-ignore:
-      - 'containers/**'
-      - '.github/workflows/containers/**'
+    paths:
+      - 'github-runners-benchmarks/**'
 jobs:
   bench-R:
     runs-on: ubuntu-latest
@@ -16,7 +14,7 @@ jobs:
       RENV_PATHS_ROOT: ~/.local/share/renv
     defaults:
       run:
-        working-directory: R
+        working-directory: github-runners-benchmarks/R
     steps:
       - uses: actions/checkout@v3 #now we need to install R
       - uses: r-lib/actions/setup-r@v2
@@ -47,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Julia
+        working-directory: github-runners-benchmarks/Julia
     steps:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
@@ -65,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Python
+        working-directory: github-runners-benchmarks/Python
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
@@ -88,7 +86,10 @@ jobs:
         with:
           name: Python_benchmark
           path: Python/benchmark_results.yaml
-  create-README:  
+  create-README:
+    defaults:
+        run:
+          working-directory: github-runners-benchmarks
     runs-on: ubuntu-latest
     needs: [bench-R, bench-Julia, bench-Python]
     steps:

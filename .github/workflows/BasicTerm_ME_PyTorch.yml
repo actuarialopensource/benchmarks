@@ -3,6 +3,8 @@ name: basicterm_me_pytorch
 on:
   workflow_dispatch: 
   push:
+    paths:
+      - 'containers/BasicTerm_ME_heavylight/**'
 
 jobs:
   docker:

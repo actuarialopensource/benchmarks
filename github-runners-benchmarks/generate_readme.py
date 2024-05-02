@@ -22,16 +22,11 @@ def generate_readme():
     with open('readme_template.md', 'r') as f:
         template = f.read()
 
-    # do the same for analysis.md
-    with open('analysis.md', 'r') as f:
-        analysis = f.read()
-
     with open('README.md', 'w') as readme:
         readme.write(template)
         readme.write('```yaml \n')
         readme.write(yaml.dump(final_result, allow_unicode=True))
         readme.write('```\n')
-        readme.write(analysis)
 
 if __name__ == '__main__':
     generate_readme()
