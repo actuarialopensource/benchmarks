@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: R_benchmark
-          path: R/benchmark_results.yaml
+          path: github-runners-benchmarks/R/benchmark_results.yaml
   bench-Julia:
     runs-on: ubuntu-latest
     defaults:
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Julia_benchmark
-          path: Julia/benchmark_results.yaml
+          path: github-runners-benchmarks/Julia/benchmark_results.yaml
   bench-Python:
     runs-on: ubuntu-latest
     defaults:
@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Python_benchmark
-          path: Python/benchmark_results.yaml
+          path: github-runners-benchmarks/Python/benchmark_results.yaml
   create-README:
     defaults:
         run:
@@ -98,17 +98,17 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: R_benchmark
-          path: R
+          path: github-runners-benchmarks/R
       - name: Download Julia benchmark
         uses: actions/download-artifact@v2
         with:
           name: Julia_benchmark
-          path: Julia
+          path: github-runners-benchmarks/Julia
       - name: Download Python benchmark
         uses: actions/download-artifact@v2
         with:
           name: Python_benchmark
-          path: Python
+          path: github-runners-benchmarks/Python
       # SETUP python and install dependencies
       - uses: actions/setup-python@v2
         with:
