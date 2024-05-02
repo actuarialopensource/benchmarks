@@ -24,7 +24,7 @@ def generate_readme():
 
     with open('README.md', 'w') as readme:
         readme.write(template)
-        readme.write('```yaml \n')
+        readme.write('\n\n```yaml \n')
         readme.write(yaml.dump(final_result, allow_unicode=True))
         readme.write('```\n')
 
