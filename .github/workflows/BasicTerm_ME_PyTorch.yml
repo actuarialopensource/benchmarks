@@ -1,0 +1,33 @@
+name: basicterm_me_pytorch
+
+on:
+  workflow_dispatch: 
+  push:
+    paths:
+      - 'containers/BasicTerm_ME_heavylight/**'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete huge unnecessary tools folder # https://github.com/orgs/community/discussions/25678
+        run: rm -rf /opt/hostedtoolcache
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: actuarial
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:containers/BasicTerm_ME_heavylight"
+          push: true
+          tags: actuarial/basicterm_me_pytorch:latest

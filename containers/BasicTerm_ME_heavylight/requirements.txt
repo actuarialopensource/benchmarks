@@ -1,0 +1,3 @@
+pandas
+openpyxl
+heavylight==1.0.6
