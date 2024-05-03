@@ -1,19 +1,19 @@
 basic_term_benchmark:
   Julia array basic_term:
-    minimum time: "TrialEstimate(30.279 ms)"
+    minimum time: "TrialEstimate(29.152 ms)"
     result: 1.4489630534602132e7
   Julia recursive basic_term:
-    minimum time: "TrialEstimate(84.812 ms)"
+    minimum time: "TrialEstimate(81.070 ms)"
     result: "1.4489630534602132e7"
 mortality:
   Julia MortalityTables.jl:
-    minimum time: "TrialEstimate(229.507 μs)"
+    minimum time: "TrialEstimate(239.946 μs)"
     result: 1904.4865526636793
 savings_benchmark:
   Julia Benchmarks savings:
-    minimum time: "TrialEstimate(119.226 ms)"
+    minimum time: "TrialEstimate(118.603 ms)"
     result: 3.507113709040273e12
 exposures:
   Julia ExperienceAnalysis.jl:
     num_rows: 141281
-    minimum time: "TrialEstimate(29.659 ms)"
+    minimum time: "TrialEstimate(29.284 ms)"
