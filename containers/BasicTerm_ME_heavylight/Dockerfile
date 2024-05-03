@@ -16,5 +16,4 @@ COPY . /app/
 ENV PYTORCH_CUDA_ALLOC_CONF="garbage_collection_threshold:0.8"
 
 # Set the entrypoint and provide the script name as default command
-ENTRYPOINT ["python"]
-CMD ["main.py"]
+ENTRYPOINT ["python", "main.py"]
