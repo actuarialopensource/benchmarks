@@ -4,9 +4,12 @@ FROM pytorch/pytorch:2.2.2-cuda11.8-cudnn8-runtime
 # Set the working directory in the container
 WORKDIR /app
 
-RUN python -m pip install \
+RUN pip install --upgrade pip
+RUN pip install --upgrade "jax[cuda12]"
+RUN pip install \
     pandas \
     openpyxl \
+    equinox \
     heavylight==1.0.6
 
 # Copy the rest of the application

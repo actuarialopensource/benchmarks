@@ -5,9 +5,7 @@ import numpy as np
 import torch
 from heavylight import LightModel, agg
 import timeit
-import argparse
 
-# ensure CUDA available
 print(f"{torch.cuda.is_available()=}")
 # set 64 bit precision
 torch.set_default_dtype(torch.float64)
@@ -167,16 +165,8 @@ def time_recursive_CPU(model: TermME):
     end = timeit.default_timer()
     return result, end - start
 
-def main():
-    parser = argparse.ArgumentParser(description="Term ME model runner")
-    parser.add_argument("--disable_cuda", action="store_true", help="Disable CUDA usage")
-    parser.add_argument("--multiplier", type=int, default=100, help="Multiplier for model points")
-    args = parser.parse_args()
-
-    disable_cuda = args.disable_cuda
-    multiplier = args.multiplier
-
-    if not disable_cuda and torch.cuda.is_available():
+def time_recursive_PyTorch(multiplier: int):
+    if torch.cuda.is_available():
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
@@ -196,9 +186,7 @@ def main():
     model.mp = mp_multiplied
     result, time_in_seconds = time_recursive(model)
     # report results
-    print(f"number modelpoints={len(model_point_table) * multiplier:,}")
+    print("PyTorch recursive model")
+    print(f"number modelpoints={len(mp_multiplied.duration_mth):,}")
     print(f"{result=:,}")
     print(f"{time_in_seconds=}")
-
-if __name__ == "__main__":
-    main()
