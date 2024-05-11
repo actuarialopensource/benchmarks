@@ -1,10 +1,10 @@
-name: basicterm_me_pytorch
+name: basicterm_me_python
 
 on:
   workflow_dispatch: 
   push:
     paths:
-      - 'containers/BasicTerm_ME_heavylight/**'
+      - 'containers/BasicTerm_ME_python/**'
 
 jobs:
   docker:
@@ -28,6 +28,6 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}:containers/BasicTerm_ME_heavylight"
+          context: "{{defaultContext}}:containers/BasicTerm_ME_python"
           push: true
-          tags: actuarial/basicterm_me_pytorch:latest
+          tags: actuarial/basicterm_me_python:latest

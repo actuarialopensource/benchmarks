@@ -7,6 +7,7 @@ WORKDIR /app
 RUN python -m pip install \
     pandas \
     openpyxl \
+    jax \
     heavylight==1.0.6
 
 # Copy the rest of the application
