@@ -8,9 +8,10 @@ We currently only have 1 benchmark, we are working to expand the benchmarks. Ope
 
 Time measurement is currently the best of 3 runs.
 
-| benchmark     | recursive | container |A100-SXM4-40GB | H100-SXM5-80GB |
+| benchmark     | classification | container |A100-SXM4-40GB | H100-SXM5-80GB |
 |---------------|-|-|----------------|----------------|
-| BasicTerm_ME 100 Million | Yes | [link](https://hub.docker.com/repository/docker/actuarial/basicterm_me_pytorch/general) | 15.8194s        | 7.1820s         |
+| BasicTerm_ME 100 Million | recursive PyTorch | [link](https://hub.docker.com/repository/docker/actuarial/basicterm_me_python/general) | 15.8284s        | 7.205s         |
+| BasicTerm_ME 100 Million | compiled iterative JAX | [link](https://hub.docker.com/repository/docker/actuarial/basicterm_me_python/general) | 3.448s        | 1.551s         |
 
 
 ### Notes
