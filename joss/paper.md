@@ -28,11 +28,11 @@ The actuarial modeling software market is dominated by large vendors [@Halloran:
 
 A 2024 PwC publication [@Kinrade:2024] speculates that graphics processing units (GPUs) may become the norm for actuarial calculation engines. Despite discussion of actuarial models running on GPUs in several publications [@Kim:2018; @Hamamura:2022a; @Robidoux:2016], there are no reproducible benchmarks for GPU-based actuarial applications.
 
-On the CPU the ecosystem is more mature and multiple open source packages might implement a particular calculation. In this case we can compare the execution time of the packages on a specific task, as well as validate that the packages can produce the same results.
+On the CPU, the ecosystem is more mature and multiple open source packages might implement a particular calculation. In this case we can compare the execution time of the packages on a specific task and validate that the packages can produce the same results.
 
 # Benchmarking infrastructure
 
-Calculations performed on CPU are run with GitHub actions on GitHub-hosted runners. We found that the execution times reported from Github hosted runners are generally consistent between runs and this has been independently verified by Milliman [@Milliman:2024]. 
+Calculations performed on CPU are run with GitHub actions on GitHub-hosted runners. We found that the execution times reported from GitHub hosted runners are generally consistent between runs and this has been independently verified by Milliman [@Milliman:2024]. 
 
 Calculations performed on GPU are published to DockerHub using GitHub actions and tested on GPUs in the cloud.
 
@@ -49,11 +49,11 @@ LifeLib [@Hamamura:2018] is an open source library that contains reference imple
 
 ## Experience studies
 
-Some actuarial techniques for calculating mortality rates involve partitioning date ranges [@Atkinson:2016]. These date partitioning algorithms are implemented by the actxps R package [@Heaphy:2024] and the ExperienceAnalysis.jl [@Loudenback:2020] Julia package . The benchmarking process identified a number of inconsistencies which were raised as issues on GitHub and quickly resolved by the maintainers of the packages.
+Some actuarial techniques for calculating mortality rates involve partitioning date ranges [@Atkinson:2016]. These date partitioning algorithms are implemented by the actxps R package [@Heaphy:2024] and the ExperienceAnalysis.jl [@Loudenback:2020] Julia package. The benchmarking process identified a number of inconsistencies which were raised as issues on GitHub and quickly resolved by the maintainers of the packages.
 
 ## Mortality tables software
 
-The Society of Actuaries provides a number of mortality tables in an XML format [@Strommen:2013]. These tables have been wrapped into packages for convenient access with the pymort [@Caseres:2021] Python package and the MortalityTables.jl [@Loudenback:2018] Julia package. There are many XML files and each XML file contains many numbers. It is not practical to verify that each package correctly parses every value from every XML file. A hash was computed using each value from 10 files verifying that the values are consistent between the two packages for these files.
+The Society of Actuaries provides a number of mortality tables in an XML format [@Strommen:2013]. These tables have been wrapped into packages for convenient access with the pymort [@Caseres:2021] Python package and the MortalityTables.jl [@Loudenback:2018] Julia package. A hash was computed using each value from 10 files verifying that the values are consistent between the two packages for these files. The Julia implementation was significantly faster.
 
 # Conclusion
 
