@@ -5,3 +5,5 @@
 .CondaPkg
 *.code-workspace
 Manifest.toml
+joss/jats*
+joss/paper.pdf
