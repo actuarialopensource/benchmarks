@@ -24,9 +24,9 @@ Actuarial models are used to forecast future economic scenarios and cash flows r
 
 # Statement of need
 
-The market for actuarial modeling software solutions is dominated by large vendors [@Halloran:2021; @Kinrade:2024]. A 2023 report by the Society of Actuaries (SOA) Research Institute [@Larochelle:2023] on improving actuarial modeling performance cites the use of vendor software as a reason they are unable to share the code for their work. This provides motivation for the creation of open source benchmarks to allow for reproducible research into the performance of actuarial models.
+The actuarial modeling software market is dominated by large vendors [@Halloran:2021; @Kinrade:2024]. Vendor software can restrict the sharing of actuarial software [@Larochelle:2023], demonstrating the value of open source solutions in enabling reproducible research.
 
-A 2024 PwC publication [@Kinrade:2024] speculates that graphics processing units (GPUs) may become the norm for actuarial calculation engines. The use of GPUs is the topic of several other actuarial publications [@Kim:2018; @Hamamura:2022a; @Robidoux:2016] but there have been no efforts to provide reproducible benchmarks for running actuarial applications on GPUs. We attempt to provide such a benchmark.
+A 2024 PwC publication [@Kinrade:2024] speculates that graphics processing units (GPUs) may become the norm for actuarial calculation engines. Despite discussion of actuarial models running on GPUs in several publications [@Kim:2018; @Hamamura:2022a; @Robidoux:2016], there are no reproducible benchmarks for GPU-based actuarial applications.
 
 On the CPU the ecosystem is more mature and multiple open source packages might implement a particular calculation. In this case we can compare the execution time of the packages on a specific task, as well as validate that the packages can produce the same results.
 
@@ -59,10 +59,10 @@ The Society of Actuaries provides a number of mortality tables in an XML format 
 
 The benchmarks provided by the Actuarial Open Source organization on GitHub intend to assist in testing the performance and accuracy of open source actuarial software. This is accomplished by selecting a specific actuarial calculation and comparing the results and execution times of various approaches. 
 
-Our current benchmarks are chosen for simplicity so that the barrier to entry remains low. We have not implemented complex calculations like nested stochastic variable annuity models which may benefit from the creation of concrete benchmarks to facilitate the establishment of a state-of-the-art. The creation of more complex benchmarks that are representative of the computational challenges facing the industry will require broader community engagement.
+Our current benchmarks are chosen for simplicity so that the barrier to entry remains low. We have not implemented complex calculations like nested stochastic variable annuity models which could benefit from concrete benchmarks. More complex benchmarks that represent the computational challenges facing the insurance industry will require broader community engagement.
 
 # Acknowledgements
 
-I thank Alec Loudenback for contributing Julia benchmarks, providing feedback through GitHub issues, and creating many Julia packages through the JuliaActuary GitHub organization. I thank Fumito Hamamura for creating LifeLib, the Actuarial Open Source LinkedIn community page, modelx, and the  insights found on the modelx blog. Without them, I would never have started any of this work. Many thanks Cédric Belmant for providing a Julia implementation to the universal life benchmark which is incredibly hard to beat and to Matt Heaphy for his implementations of experience studies software in R and Python.
+I thank Alec Loudenback for contributing Julia benchmarks, providing feedback through GitHub issues, and creating many Julia packages through the JuliaActuary GitHub organization. I thank Fumito Hamamura for creating LifeLib, the Actuarial Open Source LinkedIn community page, modelx, and the  insights found on the modelx blog. Many thanks Cédric Belmant for providing a Julia implementation to the universal life benchmark which is incredibly hard to beat and to Matt Heaphy for his implementations of experience studies software in R and Python.
 
 # References
