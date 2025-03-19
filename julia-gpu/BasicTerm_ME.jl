@@ -4,6 +4,7 @@ using MortalityTables
 using BenchmarkTools
 using OhMyThreads
 using Metal
+using ChunkSplitters
 # parameters
 
 
@@ -66,19 +67,13 @@ expense = (
 
 assumption_set = (; disc_rate_ann, mortality, premium_table, proj_len, expense)
 
-function pol_project!(out, policy, params)
+function pol_project_threaded!(out, policy, params)
     # some starting values for the given policy
     dur_month = policy.duration_month
     start_age = policy.att_age + dur_month ÷ 12
     lives = policy.lives
     # get the right mortality vector
     qs = params.mortality[start_age]
-
-    # grab the current thread's id to write to results container without conflicting with other threads
-    tid = Threads.threadid()
-
-    ω = lastindex(qs)
-
 
     for t in 1:(12*121)
         if lives < 0.0001 || (t + policy.duration_month) > policy.term * 12
@@ -98,7 +93,7 @@ function pol_project!(out, policy, params)
         end
         lapse_rate = max(0.02, 0.1 - 0.02 * (t ÷ 12))
         lapses = (1 - (1 - lapse_rate)^(1 / 12)) * (lives - deaths)
-        net_cf = premium - commissions - claims - expenses
+        net_cf = premium - commissions - expenses - claims
         # @show t, lives, net_cf, q, premium, commissions, claims, expenses, deaths, lapses
         lives -= deaths + lapses
         out.net_cf[t] += net_cf
@@ -106,7 +101,7 @@ function pol_project!(out, policy, params)
     end
 end
 
-function project_all(policies, params)
+function project_all(projection_function, policies, params)
     out = (
         net_cf=zeros(12 * 50),
         lives=zeros(12 * 50)
@@ -119,7 +114,7 @@ function project_all(policies, params)
                 lives=zeros(12 * 50)
             )
             for pol in chunk
-                pol_project!(C, pol, params)
+                projection_function(C, pol, params)
             end
             C
         end
@@ -134,19 +129,133 @@ function project_all(policies, params)
 end
 
 
-result = project_all(repeat(policies, 1), assumption_set)
-
 disc_vector = map(0:length(result.net_cf)-1) do month
     year = month ÷ 12 + 1
     zero_rate = assumption_set.disc_rate_ann[year+1, :zero_spot]
     1 / (1 + zero_rate)^(month / 12)
 end
 
+
+function pol_project_stochastic!(out, policy, params)
+    # some starting values for the given policy
+    dur_month = policy.duration_month
+    start_age = policy.att_age + dur_month ÷ 12
+    lives = policy.lives
+    inflation_factor = 1.0
+    # get the right mortality vector
+    qs = params.mortality[start_age]
+
+    # grab the current thread's id to write to results container without conflicting with other threads
+
+
+
+    for t in 1:(policy.term*12-policy.duration_month)
+        q = 1 - (1 - qs[start_age+t÷12])^(1 / 12)
+        deaths = 0
+        for _ in 1:lives
+            deaths += q > rand()
+        end
+
+        lapse_rate = (1 - (1 - max(0.02, 0.1 - 0.02 * (t ÷ 12)))^(1 / 12))
+        lapses = 0
+        for i in 1:(lives-deaths)
+            lapses += lapse_rate > rand()
+        end
+
+        premium = lives * policy.premium_per_policy
+        commissions = 0.0
+        claims = policy.face * deaths
+        inflation_factor *= 1.01^(1 / 12)
+        expenses = params.expense.maintenance / 12 * lives * inflation_factor
+        if (t + dur_month) == 1
+            commissions += premium
+            expenses = params.expense.acquisition * lives
+        end
+        net_cf = premium - commissions - expenses - claims
+        # @show t, lives, net_cf, q, premium, commissions, claims, expenses, deaths, lapses
+        out.net_cf[t] += net_cf
+
+        lives -= deaths + lapses
+        lives == 0 && return
+        out.lives[t] += lives
+    end
+end
+
+result = project_all(pol_project_threaded!, repeat(policies, 1), assumption_set)
+result2 = project_all(pol_project_stochastic!, repeat(policies, 1), assumption_set)
+sum(disc_vector .* result.net_cf)
+sum(disc_vector .* result2.net_cf)
+
+
+@benchmark project_all(pol_project_stochastic!, policies, assumption_set)
+@benchmark project_all(pol_project_threaded!, policies, assumption_set)
+@benchmark project_all(pol_project_stochastic!, p, $assumption_set) setup = (p = repeat(policies, 1000))
+
+result.lives
+result2.lives
+
+
+@profview project_all(pol_project_threaded!, policies, assumption_set)
+
+
+# monthly rates
+
+mortality_mth = let
+    df = CSV.read("julia-gpu/data/mort_table.csv", DataFrame)
+    rates = 1 .- (1 .- Matrix(df[:, 2:end])) .^ (1 / 12)
+    ult = UltimateMortality(1 .- (1 .- rates[:, end]) .^ (1 / 12), start_age=23)
+    sel = SelectMortality(rates, ult, start_age=18)
+
+end
+
+lapse_rate_mth = let
+    v = @. max(0.02, 0.1 - 0.02 * (1:121))
+    v = @. (1 - (1 - v)^(1 / 12))
+end
+assumption_set_mth = (; disc_rate_ann, mortality_mth, premium_table, proj_len, expense, lapse_rate_mth)
+
+
+function pol_project_threaded_mth!(out, policy, params)
+    # some starting values for the given policy
+    dur_month = policy.duration_month
+    start_age = policy.att_age + dur_month ÷ 12
+    lives = policy.lives
+    # get the right mortality vector
+    qs = params.mortality_mth[start_age]
+    inflation_factor = 1.0
+
+    @inbounds for t in 1:(12*121)
+        if lives < 0.0001 || (t + policy.duration_month) > policy.term * 12
+            return
+        end
+
+        premium = lives * policy.premium_per_policy
+        q = qs[start_age+t÷12] # get current mortality
+        deaths = lives * q
+        claims = deaths * policy.face
+        commissions = 0.0
+        inflation_factor *= 1.01^(1 / 12)
+        expenses = params.expense.maintenance / 12 * lives * inflation_factor
+        if (t + dur_month) == 1
+            commissions += premium
+            expenses = params.expense.acquisition * lives
+        end
+        lapses = params.lapse_rate_mth[t÷12+1] * (lives - deaths)
+        net_cf = premium - commissions - expenses - claims
+        # @show t, lives, net_cf, q, premium, commissions, claims, expenses, deaths, lapses
+        lives -= deaths + lapses
+        out.net_cf[t] += net_cf
+        out.lives[t] += lives
+    end
+end
+
+result_mth = project_all(pol_project_threaded_mth!, repeat(policies, 1), assumption_set_mth)
+
 sum(disc_vector .* result.net_cf)
 
+@benchmark project_all(pol_project_threaded_mth!, $policies, $assumption_set_mth)
 
-@benchmark project_all(p, $assumption_set) setup = (p = repeat(policies, 1000))
+np = repeat(policies, 1000)
+@profview project_all(pol_project_threaded_mth!, np, assumption_set_mth)
 
-length(policies) * 1000
-# use struct arrays to do MtlArrays?
-using StructArrays
+length(policies)
